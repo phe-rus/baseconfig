@@ -42,9 +42,8 @@ function RootDocument() {
       </head>
       <body
         className={cn(
-          "relative flex flex-col min-h-svh bg-background",
-          "overflow-x-hidden selection:bg-olive-500/15",
-          "typeset wrap-anywhere duration-200"
+          "relative flex flex-col min-h-svh bg-background typeset",
+          "selection:bg-olive-500/15 wrap-anywhere duration-200"
         )}
       >
         <ThemeProvider
