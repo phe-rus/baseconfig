@@ -1,3 +1,4 @@
+import { RouteRoot } from '@baseconfig/core/admin'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(admin)/admin')({
@@ -5,5 +6,9 @@ export const Route = createFileRoute('/(admin)/admin')({
 })
 
 function RouteComponent() {
-  return <Outlet />
+  return (
+    <RouteRoot>
+      <Outlet />
+    </RouteRoot>
+  )
 }

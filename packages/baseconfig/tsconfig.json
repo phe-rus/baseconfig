@@ -9,8 +9,7 @@
 		"strict": true,
 		"noEmit": true,
 		"paths": {
-			"@baseconfig/core/*": ["./src/*"],
-			"@baseconfig/ui/*": ["../ui/src/*"]
+			"@baseconfig/core/*": ["./src/*"]
 		}
 	},
 	"include": ["."],

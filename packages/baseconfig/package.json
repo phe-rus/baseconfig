@@ -5,6 +5,7 @@
 	"private": true,
 	"scripts": {
 		"build": "tsdown",
+		"dev": "tsdown --watch",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {

@@ -10,7 +10,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 
 export const Headers = () => {
 	return (
-		<header className='sticky inset-x-0 flex top-0 bg-background border-b border-border/35 z-35'>
+		<header className='sticky flex top-0 bg-background border-b border-border/35 z-50'>
 			<section className='px-5 flex h-10 items-center justify-between w-full'>
 				<div className="flex items-center gap-5">
 					<nav className='flex items-center gap-1'>

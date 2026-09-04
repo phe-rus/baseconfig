@@ -5,8 +5,8 @@
 @import "./typeset.css";
 
 @custom-variant dark (&:is(.dark *));
-@source "../../../www/**/*.{ts,tsx}";
-@source "../../../components/**/*.{ts,tsx}";
+@source "../../../../www/**/*.{ts,tsx}";
+@source "../../../baseconfig/src/**/*.{ts,tsx}";
 @source "../**/**/*.{ts,tsx}";
 @source "**/**/*.{tsx,ts}";
 
