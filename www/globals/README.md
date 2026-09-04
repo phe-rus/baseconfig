@@ -1,0 +1,1 @@
+Populated once the engine packages exist again (`@baseconfig/fields` + `@baseconfig/core`'s `defineGlobal`) — see `docs/PLAN.md`. Kept outside `src/` on purpose — this is the content model, not application source. See `CLAUDE.md`'s Routing & folder layout section.

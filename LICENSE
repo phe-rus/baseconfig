@@ -1,0 +1,47 @@
+The Pherus Parley License (PPL-1.0)
+"More what you'd call guidelines, than actual rules."
+
+-- The Parley (a preamble, not a term; it does not alter anything below) --
+
+Some code is built like a fortress, guarded clause by clause. This isn't
+that. This is a Parley: an open hand held out before any conflict has to
+happen. Take what you need. Build what you mean to build. Deal fairly with
+the people whose work you're building on.
+
+Every path of knowledge, once walked and understood, is worth sharing
+freely with whoever is willing to walk it next — that is the debt every
+builder owes the ones who opened the way before them. Keep the notice
+below intact, and the Parley is honored.
+
+-- The Code (grant of permission) --
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Work"), to
+deal in the Work without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Work, and to permit persons to whom the Work is
+furnished to do so, subject to the following condition:
+
+This Code section, this condition, and the copyright notice below must be
+included, unaltered, in all copies or substantial portions of the Work.
+(The Parley preamble above is offered in the same spirit but is not
+required to be reproduced.)
+
+-- The Flag (trademark notice) --
+
+This license does not grant permission to use the names "Pherus" or
+"BaseConfig", or any of their associated marks or logos, to describe,
+endorse, or imply affiliation with a modified or redistributed version
+of the Work, except as reasonably necessary to credit the Work's origin.
+
+-- No Safe Harbor (warranty disclaimer) --
+
+THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE WORK OR THE USE OR OTHER
+DEALINGS IN THE WORK.
+
+Copyright (c) 2026 Pherus and contributors.
