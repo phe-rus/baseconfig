@@ -12,34 +12,21 @@ export const Headers = () => {
 	return (
 		<header className='sticky flex top-0 bg-background border-b border-border/35 z-50'>
 			<section className='px-5 flex h-10 items-center justify-between w-full'>
-				<div className="flex items-center gap-5">
+				<div className='flex items-center gap-5'>
 					<nav className='flex items-center gap-1'>
-						<Button
-							variant='ghost'
-							size='icon-sm'
-						>
-							<HugeiconsIcon
-								icon={SidebarLeft01FreeIcons}
-							/>
+						<Button variant='ghost' size='icon-sm'>
+							<HugeiconsIcon icon={SidebarLeft01FreeIcons} />
 						</Button>
 						<Button variant='ghost' size='icon-sm'>
-							<HugeiconsIcon
-								icon={ArrowLeft01FreeIcons}
-							/>
+							<HugeiconsIcon icon={ArrowLeft01FreeIcons} />
 						</Button>
 						<Button variant='ghost' size='icon-sm'>
-							<HugeiconsIcon
-								icon={ArrowRight01FreeIcons}
-							/>
+							<HugeiconsIcon icon={ArrowRight01FreeIcons} />
 						</Button>
 					</nav>
 					<div className='h-5 w-px bg-border' />
-					<span className='text-sm text-muted-foreground'>
-						Acme Skincare /
-					</span>
-					<span className='text-sm text-foreground'>
-						dashboard
-					</span>
+					<span className='text-sm text-muted-foreground'>Acme Skincare /</span>
+					<span className='text-sm text-foreground'>dashboard</span>
 				</div>
 				<nav className='flex items-center gap-1'>
 					<Button variant='secondary' size='xs'>
@@ -50,8 +37,8 @@ export const Headers = () => {
 						/>
 						Visit site
 					</Button>
-					<Avatar className='size-7'>
-						<AvatarFallback>HQ</AvatarFallback>
+					<Avatar className='size-5!'>
+						<AvatarFallback className='text-[6px]!'>HQ</AvatarFallback>
 					</Avatar>
 				</nav>
 			</section>

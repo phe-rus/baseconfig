@@ -1,2 +1,2 @@
-export * from './config'
-export * from './route-root'
+export * from './route'
+export * from './root'
