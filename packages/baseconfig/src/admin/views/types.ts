@@ -1,8 +1,7 @@
 const VIEW_TYPES = {
 	dashboard: 'dashboard',
 	list: 'list',
-	document: 'document',
-	notFound: 'not-found'
+	document: 'document'
 } as const
 
 type ViewType = (typeof VIEW_TYPES)[keyof typeof VIEW_TYPES]
