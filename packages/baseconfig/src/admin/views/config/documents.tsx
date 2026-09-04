@@ -1,8 +1,11 @@
+import { Button } from '@baseconfig/ui/components/button'
+import { cn } from '@baseconfig/ui/lib/utils'
 import {
     File01FreeIcons,
     Image01FreeIcons,
     Layout01FreeIcons,
     News01FreeIcons,
+    PlusIcon,
     Settings02FreeIcons,
     UserGroupFreeIcons
 } from '@hugeicons/core-free-icons'
@@ -27,83 +30,96 @@ const globals = [
     { label: 'Site Settings', icon: Settings02FreeIcons }
 ]
 
+type ViewmodelProps = {
+    title: string
+    items: typeof collections | typeof globals
+    classNames?: string
+}
+
+const Viewmodel = ({
+    title,
+    items,
+    classNames
+}: ViewmodelProps) => {
+    return (
+        <section className='flex flex-col gap-1'>
+            <h1 className='text-base!'>{title}</h1>
+            <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2'>
+                {items?.map(({ icon, label, ...props }, index) => (
+                    <article
+                        key={index}
+                        className={cn(
+                            'relative flex items-center gap-3 rounded-md col-span-1 px-5 py-2.5',
+                            'border border-border/35 bg-input/35 hover:shadow-md shadow-primary/15',
+                            'transition-shadow duration-300 ease-out cursor-pointer backdrop-blur',
+                            'hover:-translate-y-1!', classNames
+                        )}
+                    >
+                        <HugeiconsIcon
+                            icon={icon}
+                            className='size-5!'
+                        />
+                        <div className='flex flex-col'>
+                            <h1 className='text-xs!'>{label}</h1>
+                            <p className='text-[8px]! text-muted-foreground'>
+                                {('count' in props && props.count !== undefined) ? (
+                                    `${props.count} items`
+                                ) : 'Global'}
+                            </p>
+                        </div>
+
+                        {('count' in props && props.count !== undefined) &&
+                            <div className='absolute right-2'>
+                                <Button
+                                    size='icon-xs'
+                                    variant='secondary'
+                                    className='rounded-full'
+                                >
+                                    <HugeiconsIcon icon={PlusIcon} />
+                                </Button>
+                            </div>
+                        }
+                    </article>
+                ))}
+            </div>
+        </section>
+    )
+}
+
 export function Documents() {
     return (
         <>
-            <div className='mb-7'>
-                <div className='font-bold text-2xl text-foreground'>
-                    Acme Skincare
-                </div>
-                <div className='text-[13px] text-muted-foreground'>
+            <section className='flex flex-col'>
+                <h1>Acme Skincare</h1>
+                <p className='text-muted-foreground'>
                     Collections and globals for this site
-                </div>
-            </div>
+                </p>
+            </section>
 
-            <div className='mb-8 grid grid-cols-4 divide-x divide-border overflow-hidden rounded-lg border border-border bg-card'>
+            <section className={cn(
+                'grid grid-cols-4 divide-x divide-border/25 cursor-pointer',
+                'overflow-hidden rounded-md border shadow border-border/35',
+                'bg-input/35! hover:shadow-md shadow-primary/15 backdrop-blur',
+                'transition-shadow duration-300 ease-out hover:-translate-y-1!',
+            )}>
                 {stats.map((stat) => (
-                    <div key={stat.label} className='p-4.5'>
-                        <div className='mb-0.5 font-bold text-[22px] text-foreground'>
-                            {stat.value}
-                        </div>
-                        <div className='font-semibold text-[11.5px] text-secondary-foreground'>
-                            {stat.label}
-                        </div>
-                        <div className='text-[11px] text-muted-foreground'>
-                            {stat.sub}
-                        </div>
-                    </div>
+                    <article key={stat.label} className='p-5'>
+                        <h1 className='font-black'>{stat.value}</h1>
+                        <h2 className='text-sm!'>{stat.label}</h2>
+                        <p className='text-xs!'>{stat.sub}</p>
+                    </article>
                 ))}
-            </div>
+            </section>
 
-            <div className='mb-3 font-semibold text-[10.5px] text-muted-foreground uppercase tracking-wider'>
-                Collections
-            </div>
-            <div className='mb-8 grid grid-cols-4 gap-3.5'>
-                {collections.map((collection) => (
-                    <div
-                        key={collection.label}
-                        className='rounded-lg border border-border bg-card p-4'
-                    >
-                        <HugeiconsIcon
-                            icon={collection.icon}
-                            size={18}
-                            strokeWidth={1.75}
-                            className='mb-3 text-muted-foreground'
-                        />
-                        <div className='font-semibold text-[13px] text-foreground'>
-                            {collection.label}
-                        </div>
-                        <div className='text-[11.5px] text-muted-foreground'>
-                            {collection.count} items
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <Viewmodel
+                title='Collections'
+                items={collections}
+            />
 
-            <div className='mb-3 font-semibold text-[10.5px] text-muted-foreground uppercase tracking-wider'>
-                Globals
-            </div>
-            <div className='grid grid-cols-4 gap-3.5'>
-                {globals.map((global) => (
-                    <div
-                        key={global.label}
-                        className='rounded-lg border border-border bg-card p-4'
-                    >
-                        <HugeiconsIcon
-                            icon={global.icon}
-                            size={18}
-                            strokeWidth={1.75}
-                            className='mb-3 text-muted-foreground'
-                        />
-                        <div className='font-semibold text-[13px] text-foreground'>
-                            {global.label}
-                        </div>
-                        <div className='text-[11.5px] text-muted-foreground'>
-                            Global
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <Viewmodel
+                title='Globals'
+                items={globals}
+            />
         </>
     )
 }

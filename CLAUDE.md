@@ -2,13 +2,13 @@
 
 Open-source, Payload-CMS-inspired CMS/site builder, built natively for the Cloudflare edge (Workers + D1 + R2 + KV) on the TanStack Start ecosystem — not Next.js.
 
-## Status: reset to design phase 2026-09-04 — reviewing/correcting the design before any new go-ahead
+## Status: admin dashboard-shell UI in progress (placeholder data, real code) — as of 2026-09-05
 
-**Renamed from Demoness to BaseConfig on 2026-09-04.** The project was previously built up through Stage 3 of `docs/PLAN.md` (scaffolding, a visual admin shell on static data, `@demoness/fields`, most of `@demoness/d1`) under the old name. That implementation has been **deleted** as part of the rename — see `docs/DISCUSSION.md`'s 2026-09-04 entry for why and what was removed. It is not lost: a full snapshot was committed to git immediately beforehand (commit message starts "checkpoint: snapshot pre-baseconfig-rename state") if any of it is worth resurrecting or referencing later.
+**Renamed from Demoness to BaseConfig on 2026-09-04.** The project was previously built up through Stage 3 of `docs/PLAN.md` (scaffolding, a visual admin shell on static data, `@demoness/fields`, most of `@demoness/d1`) under the old name. That implementation was **deleted** as part of the rename — see `docs/DISCUSSION.md`'s 2026-09-04 entry for why and what was removed. It is not lost: a full snapshot was committed to git immediately beforehand (commit message starts "checkpoint: snapshot pre-baseconfig-rename state") if any of it is worth resurrecting or referencing later.
 
-What survived the reset: `packages/ui` (shared shadcn components, unchanged), the root docs (`CLAUDE.md`, `docs/DISCUSSION.md`, `docs/PLAN.md`, `LICENSE`), and `www` (renamed from `www`) reduced back to the bare TanStack Start template starter page — no admin shell, no domains, no blocks. `packages/demoness-fields`, `demoness-core`, `demoness-d1`, `demoness-r2`, `demoness-ai` are all gone; nothing under `packages/` exists yet except `ui`. Root `package.json`'s name is now `baseconfig` (no longer the template default `start-monorepo` — that placeholder was already overwritten during the deleted Stage 0 work and stayed corrected through the rename).
+**Since the rename**, with explicit per-piece go-ahead each time: `packages/baseconfig` (`@baseconfig/core`) exists for real and is being built directly (not scaffolded ahead of need) — currently just its `src/admin/` subpath, dashboard-shell UI only, placeholder data, no field engine/D1/access-control/auth code exists yet. See `## @baseconfig/core — current real shape` below for the exact file layout and `docs/DISCUSSION.md`'s 2026-09-04/2026-09-05 entries for the full trail. `packages/ui` keeps growing (many more shadcn components added, real Base UI primitives underneath — see the `packages/ui` note below).
 
-**No implementation stage begins without explicit go-ahead, one stage at a time.** `docs/PLAN.md` holds the staged build plan (renamed to match, checkboxes reset to not-started) — read it first when resuming this project. We are currently in a review/design pass to make sure the plan and this file are actually correct before resuming Stage 0 under the new name; nothing should be assumed settled just because it was settled under the old name until it's been re-confirmed here.
+**Still true**: no implementation stage begins without explicit go-ahead, one piece at a time. `docs/PLAN.md` holds the staged build plan; Stage 1's text still describes the old `www/src/domains/*` shape and is stale relative to the actual `packages/baseconfig/src/admin/` location things are being built in now — treat `docs/PLAN.md`'s Stage 1 location as superseded by this file until `docs/PLAN.md` itself is rewritten to match (not yet done as of 2026-09-05). Next planned pieces, not yet started: the collection list view and the document editor view (see `## Open questions` below).
 
 ## Why this project exists
 
@@ -48,6 +48,8 @@ Dependency order: `core` (fields + admin UI included) → (`d1`, `r2`, `ai` as s
 
 One Worker. `/admin/*` is the dashboard (authenticated, never edge-cached); `/` and everything else is the public site (edge-cached, see Caching below). Both admin and API routes are **dynamic, generated from config at route-match time** — not hand-written per collection.
 
+**Planned end-state shape** (target, not all built yet — see the "real shape today" note right after):
+
 ```
 www/
 ├── collections/          # pages.config.ts, posts.config.ts, products.config.ts, media.config.ts, users.config.ts — outside src/, this is the content model, not app source
@@ -59,19 +61,27 @@ www/
 │   │   │   ├── auth/$.ts                 # betterAuth catch-all, BaseConfig's own instance
 │   │   │   ├── $collection/$.ts          # dynamic — every collection's generated REST surface
 │   │   │   └── globals/$global.ts        # dynamic — every global's generated REST surface
-│   │   └── admin/
-│   │       ├── index.tsx                 # Dashboard — genuinely unique, stays static
-│   │       ├── site-map.tsx              # genuinely unique, stays static
-│   │       ├── $collection/
-│   │       │   ├── index.tsx             # generic list view, driven by collection config
-│   │       │   └── $id/$tab.tsx          # generic tab view (hero/layout/seo/settings/live-preview/api) — one file for every tab of every collection, driven by the config's `tabs` field
-│   │       └── globals/$global.tsx       # generic single-doc edit view, driven by global config
-│   ├── domains/           # {name}/{config/{schema.ts,types.ts,config.ts}, hooks/{use-{}.ts}, views/{*.view.tsx}, index.ts} — pages/, media/, dashboard/, site-map/, auth/, ...
-│   ├── blocks/             # same internal shape as domains/, one folder per block type — content/, media/, cta/, archive/
-│   ├── auth.ts             # BaseConfig's own local betterAuth() instance
-│   └── baseconfig.config.ts  # export default buildConfig({...})
-└── wrangler.jsonc          # D1/R2/KV bindings, Cron Triggers — doesn't exist yet
+│   │   └── (admin)/
+│   │       ├── route.tsx                 # pathless layout for the group, thin passthrough
+│   │       └── admin/
+│   │           ├── route.tsx             # mounts @baseconfig/core/admin's RouteRoot (header chrome), wraps Outlet
+│   │           └── $.tsx                 # the ONE catch-all for the entire admin, and it stays that way permanently — see the correction note right below, this is not a stage-1-only shortcut
+│   ├── blocks/             # one folder per public-site block renderer — content/, media/, cta/, archive/ (Stage 6, not started)
+│   ├── auth.ts             # BaseConfig's own local betterAuth() instance (not started)
+│   └── baseconfig.config.ts  # export default buildConfig({...}) (not started)
+└── wrangler.jsonc          # D1/R2/KV bindings, Cron Triggers — placeholder bindings only, not provisioned
 ```
+
+**Corrected 2026-09-05 — admin routing is one permanent catch-all, all dispatch logic lives in `@baseconfig/core`, mimicking Payload exactly.** An earlier pass at this plan (now corrected, not just superseded — see `docs/DISCUSSION.md`'s 2026-09-05 entry) proposed splitting `admin/$.tsx` into multiple file routes (`admin/index.tsx`, `admin/$collection/index.tsx`, `admin/$collection/$id/$tab.tsx`) as each admin view got built. **That was wrong and is not the plan.** `www` gets exactly one admin route file, forever: `admin/$.tsx`, a catch-all capturing the entire rest-of-path. It does nothing but forward that path into a single exported root-dispatch function from `@baseconfig/core/admin` — matching Payload's own real, verified mechanism:
+
+- Payload's consumer-side file (`app/(payload)/admin/[[...segments]]/page.tsx`, a Next.js catch-all) is one file, forever, regardless of how many admin views exist — it just calls `RootPage({ config, params, searchParams, importMap })`.
+- `RootPage` → `@payloadcms/next`'s `renderRoot()` → `@payloadcms/ui`'s real `getRouteData()` (fetched and read from `payloadcms/payload`'s actual source, not assumed): takes the raw `segments: string[]` array, `switch (segments.length)` (0/1/2/default), matches literal segment strings (`'collections'`, `'globals'`, `'trash'`, `'hierarchy'`, `'verify'`) and resolved `collectionConfig`/`globalConfig` (looked up from `config.collections`/`config.globals` by slug, matched against `segments[1]`) to decide `viewType`/`documentSubViewType`/`routeParams` (`{ collection, global, id, versionID, token }`), then picks a component out of an internal view registry (`adminViews`/`defaultAdminViews`) and renders it wrapped in the right template (`default`/`minimal`/none).
+- Payload's real admin URL scheme, confirmed from that source: `/admin` (dashboard), `/admin/collections/:slug` (list), `/admin/collections/:slug/:id` (edit, default sub-view), `/admin/collections/:slug/:id/versions`, `/admin/collections/:slug/:id/api` (further URL-addressable **sub-views** — meta-concerns about the document, not its content), `/admin/globals/:slug` mirrored for globals.
+
+**BaseConfig's mimicked version**: `admin/$.tsx` passes its splat/rest-of-path (TanStack Router's `$` catch-all param — a single string, needs splitting on `/` inside core, unlike Next's pre-split `segments` array) into a `@baseconfig/core/admin` root-dispatch export. That function owns the entire `segments`→(collection/global config lookup)→(viewType/routeParams)→(component registry lookup)→(template wrap) pipeline, the same shape as `getRouteData`+`renderRoot`, just built against BaseConfig's own (eventually real, currently placeholder) `collections`/`globals` config instead of Payload's. Proposed URL scheme, mirroring Payload's directly: `/admin` (dashboard), `/admin/collections/:slug` (list), `/admin/collections/:slug/:id` (editor).
+**One deliberate divergence, flagged rather than silently copied**: Payload's URL-addressable "document sub views" (`versions`, `api`) are a different concept from BaseConfig's Hero/Layout/SEO/Settings tabs (`## Field taxonomy`'s "one named `tabs` field" design insight) — those are a *content* grouping inside the single edit view, not separate meta-views about the document. The plan is for Hero/Layout/SEO/Settings to be **client-side tab state within the one editor view component**, not further URL segments — while `versions`/`api` (if BaseConfig builds document-level sub-views at all) would follow Payload's real pattern and be actual segments. Not fully designed yet; captured here so the distinction isn't lost.
+
+**Real shape today (2026-09-05)**: `www/src/routes/(admin)/route.tsx` and `(admin)/admin/route.tsx`/`admin/$.tsx` exist exactly as above. `admin/$.tsx` currently just always mounts `@baseconfig/core/admin`'s `RouteComponents` unconditionally (today's dashboard) — it does not yet do real segment-based dispatch; that dispatch logic is exactly what Sub-stage 1A (`docs/PLAN.md`) builds next. `collections/`, `globals/`, `blocks/`, `auth.ts`, `baseconfig.config.ts`, and the public `$slug.tsx`/`api/*` routes don't exist yet. `www/src/domains/` (an earlier, now-abandoned idea for where admin-UI components would live inside the consumer app) is **not** part of the plan anymore — the admin UI lives entirely inside `@baseconfig/core`'s own `src/admin/`, per the "core owns admin" decision; `www` only ever gets the thin route files shown above.
 
 ## Code structure & style conventions
 
@@ -100,7 +110,22 @@ www/
 
 - **`@baseconfig/fields` merges into `@baseconfig/core`.** Payload has no separate installable "fields" package at all — field types are just part of the core `payload` package's config surface. Splitting it out was an unforced departure from Payload's own boundary. Core now owns: `defineCollection`/`defineGlobal`, the field builders + their Zod schemas, access control, hooks, the CRUD engine, schema-generation glue (calling into `@baseconfig/d1`), and better-auth's instance construction (see the auth bullet below). The Package structure table needs updating to match — not yet done, do that as part of whichever stage actually builds this.
 - **Core stays UI-free — no React, no JSX, ever.** A consumer's own `collections/*.config.ts` / `globals/*.config.ts` files are plain `.ts`: field definitions and config, nothing else. This is the whole point of the split: a project that only ever calls the REST API (no admin surface at all) doesn't pay for a single byte of admin-UI code.
-- **Corrected 2026-09-04: one package, not two.** The admin UI is NOT a separate npm package — it lives inside `@baseconfig/core` itself, under `src/admin/` (types, `fields/` — one file per field type's admin component, `forms/`, `functions/`, `views/` — `dashboard/` with `asidebar.tsx`/`headers.tsx`, `documents/`), as a sibling to `src/api/` (`auth/`, `storage/`, `index.ts`). Bundle-size discipline is enforced through subpath structure/exports instead of a package boundary: an API-only consumer imports only from `@baseconfig/core`'s `api` subpath and never touches `admin`, so none of the admin/React code enters their bundle even though it's physically in the same package. `@baseconfig/ui` (shared shadcn primitives) is still a separate dependency `src/admin/` pulls in.
+- **Corrected 2026-09-04: one package, not two.** The admin UI is NOT a separate npm package — it lives inside `@baseconfig/core` itself, under `src/admin/`, as a (future) sibling to `src/api/` (`api/` doesn't exist yet — see the Link/serverFn note below). Bundle-size discipline is enforced through subpath structure/exports instead of a package boundary: an API-only consumer will import only from `@baseconfig/core`'s `api` subpath and never touch `admin`, so none of the admin/React code enters their bundle even though it's physically in the same package. `@baseconfig/ui` (shared shadcn primitives) is a separate dependency `src/admin/` pulls in.
+- **`src/admin/`'s real current shape, as of 2026-09-05 (no `fields/`, `forms/`, `functions/`, `documents/`, or a `dashboard/` subfolder yet — that was the original speculative plan from 2026-09-04, superseded by what actually got built)**:
+  ```
+  src/admin/
+  ├── index.ts                        # export * from './views'
+  └── views/
+      ├── index.ts                     # export * from './config'; export * from './route-root'
+      ├── route-root.tsx                # RouteRoot — bare Fragment wrapping <Headers/> + {children}, no sidebar (explicitly rejected 2026-09-04 — "we dont have sidebar in our desings")
+      ├── headers/
+      │   └── index.tsx                 # Headers — the sticky top-0 topbar chrome: 3 leading nav icons + divider + breadcrumb + "Visit site" + avatar. No sidebar.
+      └── config/
+          ├── index.tsx                 # RouteComponents — <article> wrapper, currently just renders <Documents/>. Will become the router for collection-list/editor views once those exist.
+          └── documents.tsx              # Documents — the dashboard's stat-tile row + Collections/Globals card grid, placeholder data. This is what `RouteComponents` shows today at `/admin`.
+  ```
+  `types.ts` (top-level admin types file) doesn't exist yet either — add it, per the project's types-get-their-own-folder convention (`## Code structure & style conventions`), once there's an actual type worth extracting rather than pre-scaffolding it empty.
+- **`Link` and server functions belong in `@baseconfig/core`, decided direction, not yet built.** Since both the CRUD API (`src/api/`) and all admin navigation live inside `core` rather than in the thin `www` consumer shell, `core` should own/re-export TanStack Router's `Link` (so admin views navigate via a component that already knows the admin route tree) and TanStack Start's server-function primitive (`createServerFn`, for the eventual `core.collections.*`/`core.globals.*` CRUD accessor calls) rather than making every admin view reach into `@tanstack/react-router`/`@tanstack/react-start` directly. Exact shape (a thin re-export? a typed wrapper adding admin-route-awareness to `Link`? where server functions live relative to `src/api/`) is **not yet designed** — surfaced here as a decided direction ahead of the collection-list/editor design pass, per explicit instruction, not yet implemented.
 - **The consumer's own files stay thin, verified against Payload's actual generated files**, not assumed:
   - Payload's `app/(payload)/admin/[[...segments]]/page.tsx` is 15 lines total: imports `RootPage`/`generatePageMetadata` from `@payloadcms/next/views`, the project's own config, and a generated `importMap`; the page body is one line, `RootPage({ config, params, searchParams, importMap })`. Every real byte of admin rendering logic lives in `@payloadcms/next`/`@payloadcms/ui`, not in the consumer's copy.
   - `app/(payload)/api/[...slug]/route.ts` is the same shape: destructures `REST_GET`/`REST_POST`/`REST_PATCH`/`REST_DELETE`/`REST_PUT`/`REST_OPTIONS` and re-exports each as the Next.js route handler, passing `config`.
@@ -122,6 +147,20 @@ www/
 ## Library packages build with tsdown
 
 **Decided 2026-09-04**: every `@baseconfig/*` library package (`fields`/`core` merged, `d1`, `r2`, `ai`, plugins — everything except `www` itself, which is a Vite app, not a published library) builds with [tsdown](https://tsdown.dev) (the rolldown-based successor to `tsup`) once any of them actually needs a build step. `packages/ui` is a source-only workspace dependency today (consumed directly as TS/TSX via the monorepo, no build step) and stays that way unless that changes. Set up per-package as each package is actually built, not pre-emptively scaffolded before there's code to bundle.
+
+`packages/baseconfig/tsdown.config.ts` uses an object-glob entry (`entry: { '*': 'src/*/*.ts' }`, not a single string) specifically so every top-level module folder under `src/` (currently just `admin/`, more to come — `api/`, etc.) gets its own `dist/<folder>/index.mjs` output automatically, without editing this config again per new folder.
+
+## Admin dev workflow — `dist/` must stay in sync, this bit everyone once already
+
+`www` never imports `packages/baseconfig/src/` directly — it only ever sees `@baseconfig/core`'s published `exports` map, which points at the **built** `dist/admin/index.mjs`. That means every edit under `packages/baseconfig/src/` is invisible to the running `www` dev server until `dist/` is rebuilt. This isn't optional context — a real ~1 hour of a debugging session on 2026-09-05 was spent chasing a "sticky header not working" bug that was actually just a stale build (full story in `docs/DISCUSSION.md`'s 2026-09-05 entry). Three things now keep this from recurring, all already fixed, but worth knowing if something in this chain ever looks broken again:
+
+1. **`packages/baseconfig/package.json` has a `"dev": "tsdown --watch"` script.** Root `bun run dev` is `turbo dev`, and turbo only starts a `dev` task in a workspace if that workspace defines one — before this existed, `turbo dev` silently only ran `www`'s `vite dev`, and `packages/baseconfig`'s `dist/` was never touched after the one manual `build` run that created it. If `dist/` ever looks stale again, check this script still exists and that `bun run dev` actually shows a `@baseconfig/core:dev: ... tsdown ... watch` line in its output, not just `www:dev`.
+2. **`packages/ui/src/styles/globals.css`'s `@source` directives must actually resolve to real directories.** Tailwind v4 only generates CSS for classes it finds in files matched by `@source` (plus its own automatic project scan, which respects `.gitignore` — and `dist/` is gitignored, so scanning build output is never a substitute for correct `@source` paths pointing at real `src/`). The paths are relative to `globals.css`'s own location (`packages/ui/src/styles/`): `../../../../www/**/*.{ts,tsx}` reaches the real `www/` app (4 levels: `styles`→`src`→`ui`→`packages`→repo root, then into `www`), `../../../baseconfig/src/**/*.{ts,tsx}` reaches `packages/baseconfig/src/` (3 levels, then into the sibling `baseconfig` package). Both were wrong before 2026-09-05 (miscounted `../` depth / pointed at a nonexistent `packages/components`), meaning classes used only inside `packages/baseconfig` (like the header's `sticky`/`top-0`) silently never got compiled into any CSS at all, build-fresh or not.
+3. **Don't add `@baseconfig/ui/*` (or any other workspace package's `src/*`) to another package's `tsconfig.json` `paths`** unless that package genuinely has no `package.json` `exports` covering the same subpaths. `packages/ui` already has real subpath exports (`./components/*`, `./hooks/*`, `./lib/*`, etc.), so `packages/baseconfig` resolving `@baseconfig/ui/*` through those (the normal workspace-package route) is both correct and sufficient. A redundant `tsconfig.json` `paths` override pointing straight at `../ui/src/*` was found and removed on 2026-09-05 — it had been pulling `packages/ui`'s own component files into `packages/baseconfig`'s declaration-emission program directly (not through package resolution), which caused `tsdown`'s `dts: true` step to emit stray `.d.ts` files *inside `packages/ui/src/components/`* on every rebuild — polluting a package that's supposed to stay source-only/build-free.
+
+## `packages/ui` — real primitive vendor is Base UI, not Radix; dependency set has grown
+
+The shadcn components in `packages/ui/src/components/` are generated against **`@base-ui/react`** (e.g. `tooltip.tsx` imports `Tooltip as TooltipPrimitive` from `@base-ui/react/tooltip`), not Radix UI — worth knowing before assuming Radix's API/prop shapes when touching or extending any component here. As of 2026-09-05 `packages/ui/package.json` also carries a much larger dependency set than the original scaffold (`cmdk`, `cn`, `date-fns`, `embla-carousel-react`, `input-otp`, `react-day-picker`, `react-resizable-panels`, `recharts`, `@shadcn/react`, `lucide-react`, `tailwind-merge`, `tw-animate-css`, `zod`, among others) — added directly by the user alongside the growing component library, not something to "clean up" without checking first whether a given dependency is actually load-bearing for a component that's in use.
 
 ## Caching & rendering model
 
@@ -189,6 +228,8 @@ One unified, switchable AI provider layer — not one integration per feature. S
 
 ## Open questions (resolve before treating as settled)
 
+- **Immediate next design work, as of 2026-09-05**: the collection list view and the document editor view for `@baseconfig/core/admin` — not yet designed or built. `config/index.tsx`'s `RouteComponents` currently only ever renders the dashboard (`Documents`); it'll need to branch on the matched route once these exist. No plan/stages written yet for this — waiting on explicit go-ahead per `docs/PLAN.md`'s own rules before starting.
+- Exact shape of `Link`/server-function ownership inside `@baseconfig/core` (see the `@baseconfig/core` section above) — surfaced as a decided direction, not yet designed in detail.
 - How AI features hook into the collection-config/hooks system.
 - Map-canvas mechanics: connected-structure visualization, live-preview-thumbnail freshness strategy.
 - R2 key/folder scheme.
