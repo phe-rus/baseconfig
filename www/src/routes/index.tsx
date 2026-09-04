@@ -1,3 +1,4 @@
+import { Button } from "@baseconfig/ui/components/button"
 import { createFileRoute } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/")({
@@ -14,6 +15,11 @@ function RouteComponent() {
             Reset to the design phase — this is still the template starter
             page. See <code>docs/PLAN.md</code> for where the build stands.
           </p>
+          <Button>Primary</Button>
+          <Button variant="secondary">Secondary</Button>
+          <Button variant="destructive">Destructive</Button>
+          <Button variant="outline">Outline</Button>
+          <Button variant="ghost">Ghost</Button>
         </div>
       </div>
     </div>

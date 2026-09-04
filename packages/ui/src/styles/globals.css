@@ -5,9 +5,9 @@
 @import "./typeset.css";
 
 @custom-variant dark (&:is(.dark *));
-@source "../../../apps/**/*.{ts,tsx}";
+@source "../../../www/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
-@source "../**/*.{ts,tsx}";
+@source "../**/**/*.{ts,tsx}";
 @source "**/**/*.{tsx,ts}";
 
 @utility container {
@@ -50,13 +50,13 @@
     opacity: 40%;
   }
 
-  .group:hover & path:first-child {
+  .group\/icon:hover & path:first-child {
     opacity: 100%;
     transform: rotate(-3deg);
     --transform-origin: 0% 100%;
   }
 
-  .group:hover & path:not(:first-child) {
+  .group\/icon:hover & path:not(:first-child) {
     opacity: 100%;
     transform: rotate(3deg);
     --transform-origin: 100% 100%;

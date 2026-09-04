@@ -3,7 +3,15 @@
     "**/routeTree.gen.ts": true
   },
   "search.exclude": {
-    "**/routeTree.gen.ts": true
+    "**/routeTree.gen.ts": true,
+    "dist": true,
+    "node_modules": true,
+    "CHANGELOG.md": true,
+    "CHANGELOG_*.md": true,
+    "README.md": true,
+    "README_*.md": true,
+    "LICENSE.md": true,
+    "LICENSE_*.md": true,
   },
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true
@@ -11,9 +19,18 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
-  "tailwindCSS.classFunctions": ["tw", "clsx", "cva", "cn", "tw\\.[a-z-]+"],
+  "tailwindCSS.classFunctions": [
+    "tw",
+    "clsx",
+    "cva",
+    "cn",
+    "tw\\.[a-z-]+"
+  ],
   "tailwindCSS.experimental.classRegex": [
-    ["class:\\s*?[\"'`]([^\"'`]*).*?,", "(?:'|\"|`)([^'\"`]*)(?:'|\"|`)"]
+    [
+      "class:\\s*?[\"'`]([^\"'`]*).*?,",
+      "(?:'|\"|`)([^'\"`]*)(?:'|\"|`)"
+    ]
   ],
   "npm.packageManager": "bun",
   "typescript.tsdk": "node_modules/typescript/lib",
@@ -45,5 +62,9 @@
     "source.action.useSortedKeys.biome": "explicit",
     "source.organizeImports.biome": "explicit",
     "source.fixAll.biome": "explicit"
+  },
+  "files.exclude": {
+    "dist": true,
+    "node_modules": true
   }
 }

@@ -10,33 +10,58 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as adminRouteRouteImport } from './routes/(admin)/route'
+import { Route as adminAdminRouteRouteImport } from './routes/(admin)/admin/route'
+import { Route as adminAdminSplatRouteImport } from './routes/(admin)/admin/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const adminRouteRoute = adminRouteRouteImport.update({
+  id: '/(admin)',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const adminAdminRouteRoute = adminAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => adminRouteRoute,
+} as any)
+const adminAdminSplatRoute = adminAdminSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => adminAdminRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof adminAdminRouteRouteWithChildren
+  '/admin/$': typeof adminAdminSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof adminAdminRouteRouteWithChildren
+  '/admin/$': typeof adminAdminSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/(admin)': typeof adminRouteRouteWithChildren
+  '/(admin)/admin': typeof adminAdminRouteRouteWithChildren
+  '/(admin)/admin/$': typeof adminAdminSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/admin' | '/admin/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/admin' | '/admin/$'
+  id: '__root__' | '/' | '/(admin)' | '/(admin)/admin' | '/(admin)/admin/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  adminRouteRoute: typeof adminRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +73,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(admin)': {
+      id: '/(admin)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof adminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(admin)/admin': {
+      id: '/(admin)/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof adminAdminRouteRouteImport
+      parentRoute: typeof adminRouteRoute
+    }
+    '/(admin)/admin/$': {
+      id: '/(admin)/admin/$'
+      path: '/$'
+      fullPath: '/admin/$'
+      preLoaderRoute: typeof adminAdminSplatRouteImport
+      parentRoute: typeof adminAdminRouteRoute
+    }
   }
 }
 
+interface adminAdminRouteRouteChildren {
+  adminAdminSplatRoute: typeof adminAdminSplatRoute
+}
+
+const adminAdminRouteRouteChildren: adminAdminRouteRouteChildren = {
+  adminAdminSplatRoute: adminAdminSplatRoute,
+}
+
+const adminAdminRouteRouteWithChildren = adminAdminRouteRoute._addFileChildren(
+  adminAdminRouteRouteChildren,
+)
+
+interface adminRouteRouteChildren {
+  adminAdminRouteRoute: typeof adminAdminRouteRouteWithChildren
+}
+
+const adminRouteRouteChildren: adminRouteRouteChildren = {
+  adminAdminRouteRoute: adminAdminRouteRouteWithChildren,
+}
+
+const adminRouteRouteWithChildren = adminRouteRoute._addFileChildren(
+  adminRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  adminRouteRoute: adminRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

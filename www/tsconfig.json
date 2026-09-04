@@ -23,7 +23,10 @@
         "./src/*"
       ],
       "@baseconfig/ui/*": [
-        "../../packages/ui/src/*"
+        "../packages/ui/src/*"
+      ],
+      "@baseconfig/core/*": [
+        "../packages/baseconfig/src/*"
       ]
     },
     /* Bundler mode */

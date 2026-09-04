@@ -1,5 +1,8 @@
-import appCss from "@baseconfig/ui/globals.css?url"
-import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router"
+import { TooltipProvider } from '@baseconfig/ui/components/tooltip'
+import tailwindcss from "@baseconfig/ui/globals.css?url"
+import { cn } from "@baseconfig/ui/lib/utils"
+import { ThemeProvider } from '@baseconfig/ui/theme-provider'
+import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router"
 
 export const Route = createRootRoute({
   head: () => ({
@@ -18,7 +21,7 @@ export const Route = createRootRoute({
     links: [
       {
         rel: "stylesheet",
-        href: appCss,
+        href: tailwindcss
       },
     ],
   }),
@@ -31,14 +34,30 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootDocument() {
   return (
-    <html lang="en">
+    <html lang="en" className="antialiased blur-none" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body>
-        {children}
+      <body
+        className={cn(
+          "relative flex flex-col min-h-svh bg-background",
+          "overflow-x-hidden selection:bg-olive-500/15",
+          "typeset wrap-anywhere duration-200"
+        )}
+      >
+        <ThemeProvider
+          attribute='class'
+          defaultTheme='system'
+          enableColorScheme
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>
+            <Outlet />
+          </TooltipProvider>
+        </ThemeProvider>
         <Scripts />
       </body>
     </html>

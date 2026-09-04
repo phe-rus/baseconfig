@@ -1,0 +1,27 @@
+{
+	"name": "@baseconfig/core",
+	"version": "0.0.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"build": "tsdown",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@baseconfig/ui": "workspace:*",
+		"@hugeicons/core-free-icons": "4.3.0",
+		"@hugeicons/react": "1.1.10",
+		"react": "19.2.8"
+	},
+	"devDependencies": {
+		"@types/react": "19.2.18",
+		"tsdown": "0.23.0",
+		"typescript": "7.0.2"
+	},
+	"exports": {
+		"./admin": {
+			"types": "./dist/admin/index.d.mts",
+			"import": "./dist/admin/index.mjs"
+		}
+	}
+}
