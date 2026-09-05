@@ -3,15 +3,21 @@ import { cn } from '@baseconfig/ui/lib/utils'
 import { PlusIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Link } from '@tanstack/react-router'
-import { collections, globals } from './documents'
+import { collections, globals } from '../documents/data'
 
 type ViewmodelProps = {
 	title: string
+	kind: 'collection' | 'global'
 	items: typeof collections | typeof globals
 	classNames?: string
 }
 
-export const Viewmodel = ({ title, items, classNames }: ViewmodelProps) => {
+export const Viewmodel = ({
+	title,
+	kind,
+	items,
+	classNames
+}: ViewmodelProps) => {
 	return (
 		<section className='flex flex-col gap-1'>
 			<h1 className='text-base!'>{title}</h1>
@@ -19,8 +25,8 @@ export const Viewmodel = ({ title, items, classNames }: ViewmodelProps) => {
 				{items?.map(({ icon, label, slug, ...props }, index) => (
 					<div key={index} className='relative'>
 						<Link
-							to='/admin/$'
-							params={{ _splat: slug }}
+							to={(kind === 'global' ? '/globals/$slug' : '/$slug') as any}
+							params={{ slug } as any}
 							className={cn(
 								'flex items-center gap-3 rounded-md px-5 py-2.5',
 								'border border-border/35 bg-input/35 hover:shadow-md shadow-primary/15',
