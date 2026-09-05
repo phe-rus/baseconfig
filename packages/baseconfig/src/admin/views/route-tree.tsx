@@ -1,4 +1,3 @@
-import { cn } from '@baseconfig/ui/lib/utils'
 import {
 	createRootRoute,
 	createRoute,
@@ -9,16 +8,7 @@ import {
 import { collections, globals } from './documents/data'
 
 const adminRootRoute = createRootRoute({
-	component: () => (
-		<article
-			className={cn(
-				'container flex w-full flex-col py-10',
-				'gap-5 md:max-w-4xl!'
-			)}
-		>
-			<Outlet />
-		</article>
-	)
+	component: () => <Outlet />
 })
 const dashboardRoute = createRoute({
 	getParentRoute: () => adminRootRoute,

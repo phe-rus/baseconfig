@@ -11,7 +11,12 @@ const stats = [
 
 export function OverviewComponent() {
 	return (
-		<>
+		<div
+			className={cn(
+				'container flex w-full flex-col py-10',
+				'gap-5 md:max-w-4xl!'
+			)}
+		>
 			<section className='flex flex-col'>
 				<h1>Acme Skincare</h1>
 				<p className='text-muted-foreground'>
@@ -39,6 +44,6 @@ export function OverviewComponent() {
 			<Viewmodel title='Collections' kind='collection' items={collections} />
 
 			<Viewmodel title='Globals' kind='global' items={globals} />
-		</>
+		</div>
 	)
 }

@@ -1,18 +1,24 @@
+import { Tabs } from '@baseconfig/ui/components/tabs'
 import { AskAI } from '../../../editor/ask-ai'
-import { EditorControls } from '../../../editor/controls'
-import { mockHero } from '../../../editor/data'
-import { EditorTabs } from '../../../editor/tabs'
-import { ViewSwitcher } from '../../../editor/view-switcher'
+import { EditorContent } from '../../../editor/content'
+import { mockHero } from '../../../editor/content/hero/data'
+import { HeadersOne } from '../../../editor/headers/headers-one'
+import { HeadersThree } from '../../../editor/headers/headers-three'
+import { HeadersTwo } from '../../../editor/headers/headers-two'
 
 export function UUIDComponent() {
 	return (
-		<div className='flex flex-col gap-4 pb-24'>
-			<div className='flex items-center justify-between'>
-				<h1 className='font-bold text-3xl text-foreground'>{mockHero.title}</h1>
-				<ViewSwitcher />
-			</div>
-			<EditorControls status='draft' updatedAt='2 min ago' />
-			<EditorTabs status='draft' updatedAt='2 min ago' />
+		<div className='flex flex-col pb-24'>
+			<HeadersOne title={mockHero.title} />
+			<HeadersTwo
+				status='draft'
+				createdAt='Jul 2, 2026'
+				updatedAt='2 min ago'
+			/>
+			<Tabs defaultValue='hero'>
+				<HeadersThree />
+				<EditorContent status='draft' updatedAt='2 min ago' />
+			</Tabs>
 			<AskAI />
 		</div>
 	)

@@ -170,7 +170,7 @@ export function CollectionsComponent() {
 	const label = collections.find((item) => item.slug === slug)?.label ?? slug
 
 	return (
-		<div className='flex flex-col gap-6'>
+		<div className='container flex w-full flex-col gap-6 py-10 md:max-w-4xl!'>
 			<div className='flex items-center gap-4'>
 				<h1 className='font-bold text-5xl text-foreground'>{label}</h1>
 				<Button size='sm' variant='secondary'>

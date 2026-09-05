@@ -1,32 +1,18 @@
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger
-} from '@baseconfig/ui/components/tabs'
-import { EDITOR_TABS } from '../data'
+import { TabsContent } from '@baseconfig/ui/components/tabs'
 import type { DocumentStatus } from '../status-badge'
 import { HeroPanel } from './hero'
 import { LayoutPanel } from './layout'
 import { SeoPanel } from './seo'
 import { SettingsPanel } from './settings'
 
-type EditorTabsProps = {
+type EditorContentProps = {
 	status: DocumentStatus
 	updatedAt: string
 }
 
-export function EditorTabs({ status, updatedAt }: EditorTabsProps) {
+export function EditorContent({ status, updatedAt }: EditorContentProps) {
 	return (
-		<Tabs defaultValue='hero'>
-			<TabsList variant='line'>
-				{EDITOR_TABS.map((tab) => (
-					<TabsTrigger key={tab.id} value={tab.id}>
-						{tab.label}
-					</TabsTrigger>
-				))}
-			</TabsList>
-
+		<div className='container md:max-w-3xl'>
 			<TabsContent value='hero'>
 				<HeroPanel />
 			</TabsContent>
@@ -39,6 +25,6 @@ export function EditorTabs({ status, updatedAt }: EditorTabsProps) {
 			<TabsContent value='settings'>
 				<SettingsPanel status={status} updatedAt={updatedAt} />
 			</TabsContent>
-		</Tabs>
+		</div>
 	)
 }

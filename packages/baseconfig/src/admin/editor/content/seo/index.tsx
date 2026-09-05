@@ -1,9 +1,10 @@
 import { Badge } from '@baseconfig/ui/components/badge'
 import { Button } from '@baseconfig/ui/components/button'
 import { Input } from '@baseconfig/ui/components/input'
+import { Label } from '@baseconfig/ui/components/label'
 import { Progress } from '@baseconfig/ui/components/progress'
 import { Textarea } from '@baseconfig/ui/components/textarea'
-import { mockSeo } from '../data'
+import { mockSeo } from './data'
 
 export function SeoPanel() {
 	const titlePercent = Math.round(
@@ -17,7 +18,7 @@ export function SeoPanel() {
 		<div className='flex flex-col gap-5 pt-4'>
 			<div className='flex flex-col gap-1.5'>
 				<div className='flex items-center justify-between'>
-					<p>Meta Title</p>
+					<Label className='text-muted-foreground'>Meta Title</Label>
 					<div className='flex items-center gap-1.5'>
 						<Badge variant='secondary'>Good</Badge>
 						<p className='text-muted-foreground'>
@@ -34,7 +35,7 @@ export function SeoPanel() {
 
 			<div className='flex flex-col gap-1.5'>
 				<div className='flex items-center justify-between'>
-					<p>Meta Description</p>
+					<Label className='text-muted-foreground'>Meta Description</Label>
 					<div className='flex items-center gap-1.5'>
 						<Badge variant='secondary'>Good</Badge>
 						<p className='text-muted-foreground'>
@@ -47,7 +48,7 @@ export function SeoPanel() {
 			</div>
 
 			<div className='flex flex-col gap-1.5'>
-				<p>Meta Image</p>
+				<Label className='text-muted-foreground'>Meta Image</Label>
 				<div className='flex items-center gap-2.5 rounded-md border border-border/35 p-2'>
 					<div className='size-10 shrink-0 rounded-md bg-gradient-to-br from-amber-200 to-amber-400' />
 					<pre className='flex-1'>{mockSeo.metaImage}</pre>

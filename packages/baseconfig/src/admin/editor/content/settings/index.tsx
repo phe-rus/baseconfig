@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback } from '@baseconfig/ui/components/avatar'
 import { Button } from '@baseconfig/ui/components/button'
 import { Input } from '@baseconfig/ui/components/input'
+import { Label } from '@baseconfig/ui/components/label'
 import {
 	NativeSelect,
 	NativeSelectOption
@@ -12,8 +13,8 @@ import {
 	PencilEdit02FreeIcons
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { mockDocumentCreatedAt, mockSettings } from '../data'
-import type { DocumentStatus } from '../status-badge'
+import type { DocumentStatus } from '../../status-badge'
+import { mockDocumentCreatedAt, mockSettings } from './data'
 
 const STATUS_LABEL: Record<DocumentStatus, string> = {
 	draft: 'Draft',
@@ -30,7 +31,7 @@ export function SettingsPanel({ status, updatedAt }: SettingsPanelProps) {
 	return (
 		<div className='flex flex-col gap-5 pt-4'>
 			<div className='flex flex-col gap-2'>
-				<p>Authors</p>
+				<Label className='text-muted-foreground'>Authors</Label>
 				<div className='flex flex-col gap-1.5'>
 					{mockSettings.authors.map((author) => (
 						<div
@@ -50,7 +51,11 @@ export function SettingsPanel({ status, updatedAt }: SettingsPanelProps) {
 						</div>
 					))}
 				</div>
-				<Button variant='outline' size='sm' className='w-fit'>
+				<Button
+					variant='outline'
+					size='sm'
+					className='w-fit rounded-full border-dashed'
+				>
 					<HugeiconsIcon
 						icon={AddCircleFreeIcons}
 						size={12}
@@ -62,7 +67,7 @@ export function SettingsPanel({ status, updatedAt }: SettingsPanelProps) {
 
 			<div className='flex flex-col gap-1.5'>
 				<div className='flex items-center justify-between'>
-					<p>Slug</p>
+					<Label className='text-muted-foreground'>Slug</Label>
 					<HugeiconsIcon
 						icon={PencilEdit02FreeIcons}
 						size={12}
@@ -73,17 +78,17 @@ export function SettingsPanel({ status, updatedAt }: SettingsPanelProps) {
 				<pre>{mockSettings.resolvedUrl}</pre>
 			</div>
 
-			<label className='flex flex-col gap-1.5'>
-				<p>Parent</p>
+			<div className='flex flex-col gap-1.5'>
+				<Label className='text-muted-foreground'>Parent</Label>
 				<NativeSelect defaultValue={mockSettings.parent}>
 					<NativeSelectOption value='Top Level'>
 						— Top Level —
 					</NativeSelectOption>
 				</NativeSelect>
-			</label>
+			</div>
 
 			<div className='flex flex-col gap-2'>
-				<p>Tags</p>
+				<Label className='text-muted-foreground'>Tags</Label>
 				<div className='flex flex-wrap items-center gap-1.5'>
 					{mockSettings.tags.map((tag) => (
 						<span
@@ -98,7 +103,11 @@ export function SettingsPanel({ status, updatedAt }: SettingsPanelProps) {
 							/>
 						</span>
 					))}
-					<Button variant='outline' size='xs'>
+					<Button
+						variant='outline'
+						size='xs'
+						className='rounded-full border-dashed'
+					>
 						<HugeiconsIcon
 							icon={AddCircleFreeIcons}
 							size={11}

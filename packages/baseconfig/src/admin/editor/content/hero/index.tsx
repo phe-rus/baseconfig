@@ -2,6 +2,7 @@ import { Badge } from '@baseconfig/ui/components/badge'
 import { Button } from '@baseconfig/ui/components/button'
 import { Checkbox } from '@baseconfig/ui/components/checkbox'
 import { Input } from '@baseconfig/ui/components/input'
+import { Label } from '@baseconfig/ui/components/label'
 import {
 	NativeSelect,
 	NativeSelectOption
@@ -20,21 +21,32 @@ import {
 	TextUnderlineFreeIcons
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { HERO_TYPES, mockHero } from '../data'
+import { HERO_TYPES, mockHero } from './data'
 
 export function HeroPanel() {
 	return (
 		<div className='flex flex-col gap-5 pt-4'>
-			<label className='flex flex-col gap-1.5'>
-				<p>Title</p>
-				<Input defaultValue={mockHero.title} />
-			</label>
+			<p className='font-semibold text-foreground'>
+				Hero{' '}
+				<span className='font-normal text-muted-foreground'>
+					· appears at the top of the page
+				</span>
+			</p>
 
 			<div className='flex flex-col gap-1.5'>
-				<p>Type</p>
+				<Label className='text-muted-foreground'>Title</Label>
+				<Input defaultValue={mockHero.title} />
+			</div>
+
+			<div className='flex flex-col gap-1.5'>
+				<Label className='text-muted-foreground'>Type</Label>
 				<ToggleGroup variant='outline' defaultValue={[mockHero.type]}>
 					{HERO_TYPES.map((type) => (
-						<ToggleGroupItem key={type} value={type}>
+						<ToggleGroupItem
+							key={type}
+							value={type}
+							className='rounded-full data-[state=on]:bg-foreground data-[state=on]:text-background'
+						>
 							{type}
 						</ToggleGroupItem>
 					))}
@@ -42,7 +54,7 @@ export function HeroPanel() {
 			</div>
 
 			<div className='flex flex-col gap-1.5'>
-				<p>Intro Content</p>
+				<Label className='text-muted-foreground'>Intro Content</Label>
 				<div className='rounded-md border border-border/35'>
 					<div className='flex items-center gap-1 border-border/35 border-b p-1.5'>
 						<Button variant='ghost' size='icon-xs'>
@@ -72,7 +84,7 @@ export function HeroPanel() {
 			</div>
 
 			<div className='flex flex-col gap-1.5'>
-				<p>Media</p>
+				<Label className='text-muted-foreground'>Media</Label>
 				<div className='flex items-center gap-2.5 rounded-md border border-border/35 p-2'>
 					<div className='size-10 shrink-0 rounded-md bg-linear-to-br from-amber-200 to-amber-400' />
 					<pre className='flex-1'>{mockHero.mediaFile}</pre>
@@ -84,8 +96,12 @@ export function HeroPanel() {
 
 			<div className='flex flex-col gap-2'>
 				<div className='flex items-center justify-between'>
-					<p>Links</p>
-					<Button variant='outline' size='sm'>
+					<Label className='text-muted-foreground'>Links</Label>
+					<Button
+						variant='outline'
+						size='sm'
+						className='rounded-full border-dashed'
+					>
 						<HugeiconsIcon
 							icon={AddCircleFreeIcons}
 							size={12}
@@ -110,20 +126,28 @@ export function HeroPanel() {
 							</div>
 							<div className='flex flex-col gap-3 p-3'>
 								<ToggleGroup variant='outline' defaultValue={[link.type]}>
-									<ToggleGroupItem value='internal'>
+									<ToggleGroupItem
+										value='internal'
+										className='rounded-full data-[state=on]:bg-foreground data-[state=on]:text-background'
+									>
 										Internal Link
 									</ToggleGroupItem>
-									<ToggleGroupItem value='custom'>Custom URL</ToggleGroupItem>
+									<ToggleGroupItem
+										value='custom'
+										className='rounded-full data-[state=on]:bg-foreground data-[state=on]:text-background'
+									>
+										Custom URL
+									</ToggleGroupItem>
 								</ToggleGroup>
 								<div className='grid grid-cols-2 gap-3'>
-									<label className='flex flex-col gap-1.5'>
-										<p>Label</p>
+									<div className='flex flex-col gap-1.5'>
+										<Label className='text-muted-foreground'>Label</Label>
 										<Input defaultValue={link.label} />
-									</label>
-									<label className='flex flex-col gap-1.5'>
-										<p>URL</p>
+									</div>
+									<div className='flex flex-col gap-1.5'>
+										<Label className='text-muted-foreground'>URL</Label>
 										<Input defaultValue={link.url} />
-									</label>
+									</div>
 								</div>
 								<div className='flex items-center justify-between'>
 									<label className='flex items-center gap-2'>
@@ -131,7 +155,7 @@ export function HeroPanel() {
 										<p>Open in new tab</p>
 									</label>
 									<div className='flex items-center gap-2'>
-										<p>Appearance</p>
+										<Label className='text-muted-foreground'>Appearance</Label>
 										<NativeSelect defaultValue={link.appearance} size='sm'>
 											<NativeSelectOption value='Default'>
 												Default
