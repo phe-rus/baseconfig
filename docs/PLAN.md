@@ -184,6 +184,56 @@ Plan originally written 2026-08-31 under the project's old name (Demoness). Stag
 
 ---
 
+### Sub-stage 4A — real `buildConfig` (schema composition) + the first real collection/global config files
+
+**Not started. Plan only, per direct instruction ("dont code anything yet... write a plan and wait").** Merges the schema-composition part of Stage 4 above with Stage 5's first bullet (writing the real `collections/*.config.ts`/`globals/*.config.ts` files) into one connected pass — you can't really validate real `buildConfig` behavior without real collection files to run it against, and writing those files against the current pass-through stub gets you nothing type-wise. Everything else in Stage 4 (hooks pipeline, access-control evaluation, the typed CRUD accessor, REST routes) and the rest of Stage 5 (wiring the admin shell to real `@baseconfig/d1` queries) stays out of scope here, unchanged from their existing bullets below.
+
+**What Payload actually does, verified from real source (`gh api` against `payloadcms/payload`, not docs prose)**:
+- A real consumer `payload.config.ts` (`templates/website/src/payload.config.ts`, fetched in full): `buildConfig({ collections: [Pages, Posts, Media, Categories, Users], globals: [Header, Footer], db, editor, secret, plugins, typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') }, ... })` — each collection/global imported from its own file (`collections/Pages/index.ts` etc.), each exporting one `CollectionConfig`/`GlobalConfig` object.
+- A real collection file (`collections/Pages/index.ts`, fetched in full): confirms `CLAUDE.md`'s already-documented design insight exactly — Hero/Content(Layout)/SEO are one named `tabs` field (`{ type: 'tabs', tabs: [{ label: 'Hero', fields: [hero] }, { label: 'Content', fields: [...] }, { label: 'SEO', fields: [...] }] }`), not three separate top-level concerns.
+- Real type generation (`packages/payload/src/cli/commands/generateTypes.ts`, fetched and read in full — genuinely more involved than assumed): (1) `configToJSONSchema()` converts the *sanitized* config into an intermediate JSON Schema, with a `$defs` entry per collection/global slug and `$ref`s between them for relationship fields (this is Payload's actual mechanism for circular/cross-collection type references) — and, confirmed from `configToJSONSchema.ts` itself, a real **`input` vs `output` schema variant** distinction: `input` (what create/update accept) excludes virtual and `join` fields and computes `required` accounting for conditionally-hidden admin fields, `output` is the full read shape; (2) that JSON Schema is compiled to real TypeScript interfaces via the third-party `json-schema-to-typescript` package; (3) a `declare module 'payload' { export interface GeneratedTypes extends Config {} }` block is appended at the end — this global module augmentation is *how* Payload's own SDK methods (`payload.find({ collection: 'pages' })`) type-check a caller-supplied slug *string* against the right document shape; (4) the result is diffed against the existing output file and only written if changed.
+
+**Why BaseConfig's Zod-based version is a genuine simplification here, not just a different flavor of the same thing**: every `@baseconfig/fields` builder already attaches a real Zod `.schema` (built earlier this session, recursive composition for `group`/`array`/`blocks`/`tabs` already smoke-tested). Zod schemas are *already* TypeScript-aware — `z.infer<typeof schema>` gives the type directly, no compiler pass needed. Payload needs its JSON-Schema-to-TypeScript pipeline because its raw field-config objects aren't independently typed; BaseConfig doesn't have that problem, so the "compile config to TypeScript" step Payload's `generateTypes` exists to do is free here — the only real missing piece is composing a collection's top-level `fields` array into *one* combined schema, which nothing currently does (each field only composes its own children, nothing yet reduces a whole collection).
+
+**What real `buildConfig`/`defineCollection`/`defineGlobal` need to actually do now** (currently pure identity pass-throughs, `packages/baseconfig/src/config.ts`) — scoped tightly to what this pass needs, not the rest of Stage 4:
+1. **Collection/global schema composition**: reduce over `fields: AnyField[]` into one combined `z.object({...})`, keying each *named* field's `.schema`; unnamed presentational fields (`row`, `collapsible`, unnamed `tabs`/`group`) merge their children's keys into the *parent* object rather than nesting one level deeper — matches how the field builders already recursively compose, just not yet exposed at the collection level.
+2. **Implicit `id`/`createdAt`/`updatedAt` fields**: Payload auto-adds these to every collection even though they're never in the user's own `fields` array (confirmed: a dedicated `getCollectionIDFieldTypes` utility handles `id`; `createdAt`/`updatedAt` are unconditional). BaseConfig's composition needs the same — prepended, not user-declared. **Not yet confirmed either way and worth checking during implementation, not assumed**: whether Payload globals also get `createdAt`/`updatedAt` (no `id` — no concept of one for a singleton document, that part's certain).
+3. **`defineCollection`/`defineGlobal`/`buildConfig` need to become properly generic** (`<const T extends CollectionConfig>(config: T): T`, not today's plain non-generic pass-through) so TypeScript preserves each config's literal, specific shape — needed both to Zod-infer the *exact* per-collection schema (not the widened `AnyField[]` union) and for the already-decided typed CRUD accessor (`core.collections.pages.find()`, per `CLAUDE.md`'s CRUD API section) to type-check by slug later.
+4. **Slug-uniqueness validation** — a cheap, real runtime check (throw on duplicate slug across collections, separately across globals) `buildConfig` should do even this early; Payload's own sanitize pass does the equivalent implicitly.
+
+**Two real open decisions — surfaced, not silently picked**:
+
+1. **Does `baseconfig.type.ts` need to be a literal generated file at all, or can types stay pure inline `z.infer<>` with no generation step?**
+   - **Option A — no codegen, no generated file.** Anywhere a collection's document type is needed, `type PagesDoc = z.infer<typeof baseconfigConfig.collections.pages.schema>` computed directly against the real config object — always in sync by construction, nothing to remember to re-run, no new tooling.
+   - **Option B — a real generator, mirroring Payload's generated-file UX.** A small script (genuinely small next to Payload's — no JSON Schema, no `json-schema-to-typescript` dependency needed, since Zod already gives typed schemas) reads the resolved config and writes `export type Pages = z.infer<typeof ...>` lines into a real `baseconfig.type.ts`. Matches the familiar generated-file pattern (a concrete file other code can type-import without pulling in the runtime Zod objects), but is a new build step that can go stale if the diff-and-rewrite discipline Payload's own CLI has isn't replicated.
+   - **Recommended, not decided**: Option A first — it's free the moment point 1 above exists. Add Option B's generator later only if something concrete actually needs a standalone type-only file; building it now would be exactly the premature tooling `CLAUDE.md`'s own conventions already argue against.
+2. **File names and locations don't match what's already documented — flagging rather than silently reconciling**:
+   - Asked for `www/src/baseconfig/baseconfig.ts`. Already-documented shape (`CLAUDE.md`'s Routing & folder layout section, plus the placeholder `www/collections/README.md`/`www/globals/README.md` already sitting in the repo) says `www/src/baseconfig.config.ts` — one file directly under `src/`, no subfolder. Which do you want?
+   - Asked for `collections/home.ts`, `about.ts`. Every real Payload collection file is *one file per collection* (confirmed: `collections/Pages/index.ts`), with "Home"/"About" as *documents* inside that one `pages` collection, not separate files — matches `CLAUDE.md`'s own already-documented `collections/pages.config.ts` naming. Did "home.ts"/"about.ts" mean per-page *seed content*, not per-page *collection files* — or is a genuinely different, non-Payload-shaped per-page-file content model actually wanted? This changes the whole modeling approach, not just names, so it's not being guessed either way.
+   - `users.ts`/`media.ts` vs. the documented `users.config.ts`/`media.config.ts` — same `.config`-suffix question.
+   - Globals — `headers.ts`/`footer.ts` genuinely matches Payload's own real template exactly (`globals: [Header, Footer]`, confirmed from source), an improvement on `CLAUDE.md`'s older placeholder example (`site-settings.config.ts`); recommend updating that example to `headers.config.ts`/`footer.config.ts` once the `.config`-suffix question above is settled.
+
+**Recommended shape, once the above are confirmed**:
+```
+www/
+├── collections/
+│   ├── pages.config.ts       # defineCollection({ slug: 'pages', fields: [...], admin: { useAsTitle: 'title' } }) — Hero/Layout/SEO as one named `tabs` field
+│   ├── users.config.ts
+│   └── media.config.ts
+├── globals/
+│   ├── headers.config.ts
+│   └── footer.config.ts
+└── src/
+    └── baseconfig.config.ts   # export default buildConfig({ collections: [pages, users, media], globals: [headers, footer], ... })
+```
+(`baseconfig.type.ts` only exists if Option B above is chosen.)
+
+**Explicitly not in scope for this pass** — stays deferred to Stage 4's remaining bullets / Stage 5, unchanged: real access-control evaluation, hook execution, request-scoped context, the typed CRUD accessor, generated REST routes, wiring the admin shell to real `@baseconfig/d1` queries. Also deferred, confirmed real but not urgent: input-vs-output schema variants (this pass composes one "document/read" schema per collection only); relationship-field cross-collection references needing `z.lazy()` (not needed until a collection file in this pass actually declares one — don't design for it pre-emptively).
+
+**Checkpoint**: wait for go-ahead, and resolution of the two open decisions above, before writing any code.
+
+---
+
 ## Stage 5 — Wire the real engine into the admin shell
 
 **Goal**: Stage 1's static-data views become real, backed by `@baseconfig/core` + `@baseconfig/d1`, through TanStack Query and server functions/routes. The dynamic `$collection`/`$tab`/`$global` routes become genuinely config-driven (no more hardcoded "pages").
