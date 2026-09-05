@@ -1,22 +1,33 @@
-import { Badge } from '@baseconfig/ui/components/badge'
+import { Avatar, AvatarFallback } from '@baseconfig/ui/components/avatar'
 import { Button } from '@baseconfig/ui/components/button'
 import { PlusIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Outlet, useChildMatches, useLoaderData } from '@tanstack/react-router'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
+import type { DocumentStatus } from '../../../editor/status-badge'
+import { StatusBadge } from '../../../editor/status-badge'
 import { collections } from '../../documents/data'
 import { CollectionTable } from '../../../tables/collection-table'
 import { collectionTableFeatures } from '../../../tables/collection-table/features'
+
+type Author = {
+	name: string
+	initials: string
+}
 
 type Document = {
 	id: string
 	title: string
 	slug: string
-	status: 'published' | 'draft'
+	status: DocumentStatus
+	author: Author
 	createdAt: string
 	updatedAt: string
 }
+
+const amara: Author = { name: 'Amara N.', initials: 'AN' }
+const jonas: Author = { name: 'Jonas T.', initials: 'JT' }
 
 const documents: Document[] = [
 	{
@@ -24,6 +35,7 @@ const documents: Document[] = [
 		title: 'Homepage',
 		slug: 'homepage',
 		status: 'published',
+		author: amara,
 		createdAt: '2026-07-02',
 		updatedAt: '2026-09-01'
 	},
@@ -32,6 +44,7 @@ const documents: Document[] = [
 		title: 'About Us',
 		slug: 'about-us',
 		status: 'published',
+		author: amara,
 		createdAt: '2026-07-04',
 		updatedAt: '2026-08-28'
 	},
@@ -40,6 +53,7 @@ const documents: Document[] = [
 		title: 'Contact',
 		slug: 'contact',
 		status: 'draft',
+		author: jonas,
 		createdAt: '2026-07-06',
 		updatedAt: '2026-08-20'
 	},
@@ -47,7 +61,8 @@ const documents: Document[] = [
 		id: 'd4e5f6a7-b8c9-40d1-8e6f-4a5b6c7d8e9f',
 		title: 'Pricing',
 		slug: 'pricing',
-		status: 'published',
+		status: 'changed',
+		author: amara,
 		createdAt: '2026-07-09',
 		updatedAt: '2026-08-15'
 	},
@@ -56,6 +71,7 @@ const documents: Document[] = [
 		title: 'Careers',
 		slug: 'careers',
 		status: 'draft',
+		author: jonas,
 		createdAt: '2026-07-12',
 		updatedAt: '2026-08-02'
 	},
@@ -64,6 +80,7 @@ const documents: Document[] = [
 		title: 'Blog',
 		slug: 'blog',
 		status: 'published',
+		author: amara,
 		createdAt: '2026-07-15',
 		updatedAt: '2026-07-30'
 	},
@@ -72,6 +89,7 @@ const documents: Document[] = [
 		title: 'FAQ',
 		slug: 'faq',
 		status: 'published',
+		author: jonas,
 		createdAt: '2026-07-18',
 		updatedAt: '2026-07-22'
 	},
@@ -80,6 +98,7 @@ const documents: Document[] = [
 		title: 'Terms of Service',
 		slug: 'terms-of-service',
 		status: 'draft',
+		author: jonas,
 		createdAt: '2026-07-20',
 		updatedAt: '2026-07-20'
 	}
@@ -120,12 +139,18 @@ export function CollectionsComponent() {
 			}),
 			columnHelper.accessor('status', {
 				header: 'Status',
+				cell: (info) => <StatusBadge status={info.getValue()} />
+			}),
+			columnHelper.accessor('author', {
+				header: 'Author',
+				enableSorting: false,
 				cell: (info) => (
-					<Badge
-						variant={info.getValue() === 'published' ? 'secondary' : 'outline'}
-					>
-						{info.getValue()}
-					</Badge>
+					<div className='flex items-center gap-1.5'>
+						<Avatar size='sm'>
+							<AvatarFallback>{info.getValue().initials}</AvatarFallback>
+						</Avatar>
+						<span>{info.getValue().name}</span>
+					</div>
 				)
 			}),
 			columnHelper.accessor('createdAt', {

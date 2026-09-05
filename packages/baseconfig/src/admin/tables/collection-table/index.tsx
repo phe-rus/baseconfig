@@ -5,6 +5,10 @@ import {
 	InputGroupInput
 } from '@baseconfig/ui/components/input-group'
 import {
+	NativeSelect,
+	NativeSelectOption
+} from '@baseconfig/ui/components/native-select'
+import {
 	Table,
 	TableBody,
 	TableCell,
@@ -16,6 +20,7 @@ import { cn } from '@baseconfig/ui/lib/utils'
 import {
 	ArrowDown01FreeIcons,
 	ArrowUp01FreeIcons,
+	MoreHorizontalFreeIcons,
 	Search01FreeIcons
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -82,6 +87,21 @@ export function CollectionTable<TRow extends RowData>({
 		enableHiding: false
 	})
 
+	const moreActionsColumn = columnHelper.display({
+		id: 'more-actions',
+		header: '',
+		cell: () => (
+			<HugeiconsIcon
+				icon={MoreHorizontalFreeIcons}
+				size={13}
+				className='text-muted-foreground'
+			/>
+		),
+		enableSorting: false,
+		enableGlobalFilter: false,
+		enableHiding: false
+	})
+
 	const filteredData = useMemo(
 		() => applyFilterConditions(data, conditions),
 		[data, conditions]
@@ -90,7 +110,7 @@ export function CollectionTable<TRow extends RowData>({
 	const table = useTable(
 		{
 			features: collectionTableFeatures,
-			columns: [selectionColumn, ...columns],
+			columns: [selectionColumn, ...columns, moreActionsColumn],
 			data: filteredData,
 			state: { globalFilter },
 			onGlobalFilterChange: setGlobalFilter,
@@ -111,10 +131,10 @@ export function CollectionTable<TRow extends RowData>({
 	const orderedHideableColumns =
 		columnOrder.length > 0
 			? columnOrder
-					.map((id) => hideableColumns.find((column) => column.id === id))
-					.filter((column): column is (typeof hideableColumns)[number] =>
-						Boolean(column)
-					)
+				.map((id) => hideableColumns.find((column) => column.id === id))
+				.filter((column): column is (typeof hideableColumns)[number] =>
+					Boolean(column)
+				)
 			: hideableColumns
 	const columnsPanelColumns = orderedHideableColumns.map((column) => ({
 		id: column.id,
@@ -140,7 +160,7 @@ export function CollectionTable<TRow extends RowData>({
 		.find((column) => column.id !== 'select')?.id
 
 	return (
-		<div className='flex flex-col gap-5 *:no-scrollbar'>
+		<div className='flex flex-col gap-5 *:no-scrollbar!'>
 			<div className='flex flex-col gap-3'>
 				<InputGroup className='rounded-none'>
 					<InputGroupAddon>
@@ -182,77 +202,78 @@ export function CollectionTable<TRow extends RowData>({
 				)}
 			</div>
 
-			<Table data-not-typeset>
-				<TableHeader>
-					{table.getHeaderGroups().map((headerGroup) => (
-						<TableRow key={headerGroup.id} className='hover:bg-transparent'>
-							{headerGroup.headers.map((header) => (
-								<TableHead
-									key={header.id}
-									className={cn(
-										'font-normal text-muted-foreground',
-										header.column.getCanSort() && 'cursor-pointer select-none'
-									)}
-									onClick={header.column.getToggleSortingHandler()}
-								>
-									{header.isPlaceholder ? null : (
-										<span className='inline-flex items-center gap-1'>
-											<table.FlexRender header={header} />
-											{header.column.getCanSort() && (
-												<span className='inline-flex flex-col'>
-													<HugeiconsIcon
-														icon={ArrowUp01FreeIcons}
-														size={11}
-														className={cn(
-															'-mb-1',
-															header.column.getIsSorted() === 'asc'
-																? 'text-foreground'
-																: 'text-muted-foreground/50'
-														)}
-													/>
-													<HugeiconsIcon
-														icon={ArrowDown01FreeIcons}
-														size={11}
-														className={cn(
-															header.column.getIsSorted() === 'desc'
-																? 'text-foreground'
-																: 'text-muted-foreground/50'
-														)}
-													/>
-												</span>
-											)}
-										</span>
-									)}
-								</TableHead>
-							))}
-						</TableRow>
-					))}
-				</TableHeader>
-				<TableBody>
-					{table.getRowModel().rows.map((row, index) => (
-						<TableRow
-							key={row.id}
-							data-state={row.getIsSelected() && 'selected'}
-							className={cn(index % 2 === 1 && 'bg-muted/30')}
-						>
-							{row.getAllCells().map((cell) => (
-								<TableCell key={cell.id}>
-									{getHref && cell.column.id === firstDataColumnId ? (
-										<Link
-											to={getHref(row.original) as any}
-											className='-m-2 inline-flex w-fit items-center p-2'
-										>
+			<div className='overflow-hidden border border-border/35 *:no-scrollbar!'>
+				<Table data-not-typeset>
+					<TableHeader>
+						{table.getHeaderGroups().map((headerGroup) => (
+							<TableRow key={headerGroup.id} className='hover:bg-transparent'>
+								{headerGroup.headers.map((header) => (
+									<TableHead
+										key={header.id}
+										className={cn(
+											'font-normal text-muted-foreground',
+											header.column.getCanSort() && 'cursor-pointer select-none'
+										)}
+										onClick={header.column.getToggleSortingHandler()}
+									>
+										{header.isPlaceholder ? null : (
+											<span className='inline-flex items-center gap-1'>
+												<table.FlexRender header={header} />
+												{header.column.getCanSort() && (
+													<span className='inline-flex flex-col'>
+														<HugeiconsIcon
+															icon={ArrowUp01FreeIcons}
+															size={11}
+															className={cn(
+																'-mb-1',
+																header.column.getIsSorted() === 'asc'
+																	? 'text-foreground'
+																	: 'text-muted-foreground/50'
+															)}
+														/>
+														<HugeiconsIcon
+															icon={ArrowDown01FreeIcons}
+															size={11}
+															className={cn(
+																header.column.getIsSorted() === 'desc'
+																	? 'text-foreground'
+																	: 'text-muted-foreground/50'
+															)}
+														/>
+													</span>
+												)}
+											</span>
+										)}
+									</TableHead>
+								))}
+							</TableRow>
+						))}
+					</TableHeader>
+					<TableBody>
+						{table.getRowModel().rows.map((row) => (
+							<TableRow
+								key={row.id}
+								data-state={row.getIsSelected() && 'selected'}
+							>
+								{row.getAllCells().map((cell) => (
+									<TableCell key={cell.id}>
+										{getHref && cell.column.id === firstDataColumnId ? (
+											<Link
+												to={getHref(row.original) as any}
+												className='-m-2 inline-flex w-fit items-center p-2'
+											>
+												<table.FlexRender cell={cell} />
+											</Link>
+										) : (
 											<table.FlexRender cell={cell} />
-										</Link>
-									) : (
-										<table.FlexRender cell={cell} />
-									)}
-								</TableCell>
-							))}
-						</TableRow>
-					))}
-				</TableBody>
-			</Table>
+										)}
+									</TableCell>
+								))}
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</div>
 
 			<div className='flex items-center justify-end gap-4 text-muted-foreground'>
 				<p>
@@ -260,17 +281,17 @@ export function CollectionTable<TRow extends RowData>({
 				</p>
 				<div className='flex items-center gap-1'>
 					<p>Per Page:</p>
-					<select
+					<NativeSelect
+						size='sm'
 						value={pageSize}
 						onChange={(event) => table.setPageSize(Number(event.target.value))}
-						className='rounded-md border border-border/35 bg-transparent px-1 py-0.5'
 					>
 						{[10, 25, 50].map((size) => (
-							<option key={size} value={size}>
+							<NativeSelectOption key={size} value={size}>
 								{size}
-							</option>
+							</NativeSelectOption>
 						))}
-					</select>
+					</NativeSelect>
 				</div>
 			</div>
 		</div>

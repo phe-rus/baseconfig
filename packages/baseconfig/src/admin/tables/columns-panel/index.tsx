@@ -1,8 +1,14 @@
 import { Checkbox } from '@baseconfig/ui/components/checkbox'
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput
+} from '@baseconfig/ui/components/input-group'
 import { cn } from '@baseconfig/ui/lib/utils'
 import { Search01FreeIcons } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useState } from 'react'
+import { reorderColumns } from './reorder'
 
 type ColumnsPanelColumn = {
 	id: string
@@ -23,52 +29,63 @@ export function ColumnsPanel({
 }: ColumnsPanelProps) {
 	const [search, setSearch] = useState('')
 	const [draggedId, setDraggedId] = useState<string | null>(null)
+	const [dragOverId, setDragOverId] = useState<string | null>(null)
 
 	const filtered = columns.filter((column) =>
 		column.label.toLowerCase().includes(search.toLowerCase())
 	)
 
 	const handleDrop = (targetId: string) => {
-		if (!draggedId || draggedId === targetId) {
-			setDraggedId(null)
-			return
+		if (draggedId && draggedId !== targetId) {
+			onReorder(
+				reorderColumns(
+					columns.map((column) => column.id),
+					draggedId,
+					targetId
+				)
+			)
 		}
-		const order = columns.map((column) => column.id)
-		const fromIndex = order.indexOf(draggedId)
-		const toIndex = order.indexOf(targetId)
-		order.splice(fromIndex, 1)
-		order.splice(toIndex, 0, draggedId)
-		onReorder(order)
 		setDraggedId(null)
+		setDragOverId(null)
 	}
 
 	return (
 		<div className='flex flex-col gap-3 border border-border/35 bg-muted/20 p-3'>
-			<div className='flex items-center gap-2 border border-border/35 bg-background px-2.5 py-1.5'>
-				<HugeiconsIcon
-					icon={Search01FreeIcons}
-					size={13}
-					className='text-muted-foreground'
-				/>
-				<input
+			<InputGroup>
+				<InputGroupAddon>
+					<HugeiconsIcon icon={Search01FreeIcons} size={13} />
+				</InputGroupAddon>
+				<InputGroupInput
 					value={search}
 					onChange={(event) => setSearch(event.target.value)}
 					placeholder='Find a column'
-					className='w-full bg-transparent outline-none'
 				/>
-			</div>
+			</InputGroup>
 			<div className='flex flex-wrap gap-2'>
 				{filtered.map((column) => (
 					<label
 						key={column.id}
 						draggable
 						onDragStart={() => setDraggedId(column.id)}
-						onDragOver={(event) => event.preventDefault()}
+						onDragOver={(event) => {
+							event.preventDefault()
+							if (draggedId && draggedId !== column.id) setDragOverId(column.id)
+						}}
+						onDragLeave={() =>
+							setDragOverId((current) =>
+								current === column.id ? null : current
+							)
+						}
 						onDrop={() => handleDrop(column.id)}
-						onDragEnd={() => setDraggedId(null)}
+						onDragEnd={() => {
+							setDraggedId(null)
+							setDragOverId(null)
+						}}
 						className={cn(
 							'flex cursor-grab items-center gap-1.5 rounded-md border border-border/35 bg-background px-2 py-1 active:cursor-grabbing',
-							draggedId === column.id && 'opacity-50'
+							draggedId === column.id && 'opacity-50',
+							dragOverId === column.id &&
+								'border-primary ring-2 ring-primary/30'
 						)}
 					>
 						<Checkbox

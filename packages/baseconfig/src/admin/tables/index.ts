@@ -1,5 +1,6 @@
 export * from './collection-table'
 export * from './collection-table/features'
 export * from './columns-panel'
+export * from './columns-panel/reorder'
 export * from './filters-panel'
 export * from './filters-panel/conditions'
