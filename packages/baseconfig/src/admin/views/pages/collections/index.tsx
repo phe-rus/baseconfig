@@ -2,55 +2,86 @@ import { Badge } from '@baseconfig/ui/components/badge'
 import { Button } from '@baseconfig/ui/components/button'
 import { PlusIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import {
-	Link,
-	Outlet,
-	useChildMatches,
-	useLoaderData
-} from '@tanstack/react-router'
+import { Outlet, useChildMatches, useLoaderData } from '@tanstack/react-router'
 import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import { collections } from '../../documents/data'
 import { CollectionTable } from '../../../tables/collection-table'
-import { collectionTableFeatures } from '../../../tables/columns'
+import { collectionTableFeatures } from '../../../tables/collection-table/features'
 
 type Document = {
 	id: string
 	title: string
+	slug: string
 	status: 'published' | 'draft'
+	createdAt: string
 	updatedAt: string
 }
 
 const documents: Document[] = [
 	{
-		id: 'a1b2c3d4',
+		id: 'a1b2c3d4-e5f6-47a8-9b3c-1d2e3f4a5b6c',
 		title: 'Homepage',
+		slug: 'homepage',
 		status: 'published',
+		createdAt: '2026-07-02',
 		updatedAt: '2026-09-01'
 	},
 	{
-		id: 'e5f6a7b8',
+		id: 'b2c3d4e5-f6a7-48b9-8c4d-2e3f4a5b6c7d',
 		title: 'About Us',
+		slug: 'about-us',
 		status: 'published',
+		createdAt: '2026-07-04',
 		updatedAt: '2026-08-28'
 	},
 	{
-		id: 'c9d0e1f2',
+		id: 'c3d4e5f6-a7b8-49c0-9d5e-3f4a5b6c7d8e',
 		title: 'Contact',
+		slug: 'contact',
 		status: 'draft',
+		createdAt: '2026-07-06',
 		updatedAt: '2026-08-20'
 	},
 	{
-		id: 'g3h4i5j6',
+		id: 'd4e5f6a7-b8c9-40d1-8e6f-4a5b6c7d8e9f',
 		title: 'Pricing',
+		slug: 'pricing',
 		status: 'published',
+		createdAt: '2026-07-09',
 		updatedAt: '2026-08-15'
 	},
 	{
-		id: 'k7l8m9n0',
+		id: 'e5f6a7b8-c9d0-41e2-9f70-5b6c7d8e9fa0',
 		title: 'Careers',
+		slug: 'careers',
 		status: 'draft',
+		createdAt: '2026-07-12',
 		updatedAt: '2026-08-02'
+	},
+	{
+		id: 'f6a7b8c9-d0e1-42f3-8081-6c7d8e9fa0b1',
+		title: 'Blog',
+		slug: 'blog',
+		status: 'published',
+		createdAt: '2026-07-15',
+		updatedAt: '2026-07-30'
+	},
+	{
+		id: 'a7b8c9d0-e1f2-4304-9192-7d8e9fa0b1c2',
+		title: 'FAQ',
+		slug: 'faq',
+		status: 'published',
+		createdAt: '2026-07-18',
+		updatedAt: '2026-07-22'
+	},
+	{
+		id: 'b8c9d0e1-f2a3-4415-a2a3-8e9fa0b1c2d3',
+		title: 'Terms of Service',
+		slug: 'terms-of-service',
+		status: 'draft',
+		createdAt: '2026-07-20',
+		updatedAt: '2026-07-20'
 	}
 ]
 
@@ -65,16 +96,26 @@ export function CollectionsComponent() {
 
 	const columns = useMemo(
 		() => [
+			columnHelper.accessor('id', {
+				header: 'ID',
+				cell: (info) => (
+					<pre className='w-fit rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground'>
+						{info.getValue()}
+					</pre>
+				)
+			}),
 			columnHelper.accessor('title', {
 				header: 'Title',
 				cell: (info) => (
-					<Link
-						to={'/$slug/$id' as any}
-						params={{ slug, id: info.row.original.id } as any}
-						className='text-foreground hover:underline'
-					>
-						{info.getValue()}
-					</Link>
+					<span className='font-medium text-foreground'>{info.getValue()}</span>
+				)
+			}),
+			columnHelper.accessor('slug', {
+				header: 'Slug',
+				cell: (info) => (
+					<span className='font-mono text-muted-foreground text-xs'>
+						/{info.getValue()}
+					</span>
 				)
 			}),
 			columnHelper.accessor('status', {
@@ -87,11 +128,14 @@ export function CollectionsComponent() {
 					</Badge>
 				)
 			}),
+			columnHelper.accessor('createdAt', {
+				header: 'Created At'
+			}),
 			columnHelper.accessor('updatedAt', {
-				header: 'Updated'
+				header: 'Updated At'
 			})
 		],
-		[slug]
+		[]
 	)
 
 	if (childMatches.length > 0) {
@@ -101,18 +145,20 @@ export function CollectionsComponent() {
 	const label = collections.find((item) => item.slug === slug)?.label ?? slug
 
 	return (
-		<div className='flex flex-col gap-4'>
-			<div className='flex items-center justify-between'>
-				<h1 className='font-bold text-foreground text-xl'>{label}</h1>
-				<Button size='xs' variant='secondary'>
-					<HugeiconsIcon icon={PlusIcon} size={13} strokeWidth={1.9} />
-					New
+		<div className='flex flex-col gap-6'>
+			<div className='flex items-center gap-4'>
+				<h1 className='font-bold text-5xl text-foreground'>{label}</h1>
+				<Button size='sm' variant='secondary'>
+					<HugeiconsIcon icon={PlusIcon} size={14} strokeWidth={1.9} />
+					Create New
 				</Button>
 			</div>
 
-			<div className='overflow-hidden rounded-md border border-border/35'>
-				<CollectionTable columns={columns} data={documents} />
-			</div>
+			<CollectionTable
+				columns={columns}
+				data={documents}
+				getHref={(row) => `/${slug}/${row.id}`}
+			/>
 		</div>
 	)
 }

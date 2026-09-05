@@ -1,4 +1,4 @@
-import { Fragment, PropsWithChildren } from 'react'
+import { Fragment, type PropsWithChildren } from 'react'
 import { Headers } from './headers'
 
 type RouteRootProps = PropsWithChildren<{}>
