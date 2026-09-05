@@ -1,16 +1,13 @@
 import { Button } from '@baseconfig/ui/components/button'
 import { cn } from '@baseconfig/ui/lib/utils'
-import { PlusIcon } from '@hugeicons/core-free-icons'
+import {
+	File01FreeIcons,
+	Layout01FreeIcons,
+	PlusIcon
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Link } from '@tanstack/react-router'
-import { collections, globals } from '../documents/data'
-
-type ViewmodelProps = {
-	title: string
-	kind: 'collection' | 'global'
-	items: typeof collections | typeof globals
-	classNames?: string
-}
+import type { ViewmodelProps } from '../../types'
 
 export const Viewmodel = ({
 	title,
@@ -18,12 +15,14 @@ export const Viewmodel = ({
 	items,
 	classNames
 }: ViewmodelProps) => {
+	const defaultIcon = kind === 'global' ? Layout01FreeIcons : File01FreeIcons
+
 	return (
 		<section className='flex flex-col gap-1'>
 			<h1 className='text-base!'>{title}</h1>
 			<div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2'>
-				{items?.map(({ icon, label, slug, ...props }, index) => (
-					<div key={index} className='relative'>
+				{items.map(({ icon, label, slug, count }) => (
+					<div key={slug} className='relative'>
 						<Link
 							to={(kind === 'global' ? '/globals/$slug' : '/$slug') as any}
 							params={{ slug } as any}
@@ -35,18 +34,20 @@ export const Viewmodel = ({
 								classNames
 							)}
 						>
-							<HugeiconsIcon icon={icon} className='size-5!' />
+							<HugeiconsIcon icon={icon ?? defaultIcon} className='size-5!' />
 							<div className='flex flex-col'>
 								<h1 className='text-xs!'>{label}</h1>
 								<p className='text-[8px]! text-muted-foreground'>
-									{'count' in props && props.count !== undefined
-										? `${props.count} items`
-										: 'Global'}
+									{kind === 'global'
+										? 'Global'
+										: count !== undefined
+											? `${count} items`
+											: 'Collection'}
 								</p>
 							</div>
 						</Link>
 
-						{'count' in props && props.count !== undefined && (
+						{kind === 'collection' && (
 							<div className='absolute right-2 top-1/2 -translate-y-1/2'>
 								<Button
 									size='icon-xs'

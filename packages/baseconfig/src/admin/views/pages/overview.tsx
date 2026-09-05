@@ -1,6 +1,6 @@
 import { cn } from '@baseconfig/ui/lib/utils'
+import { useAdminConfig } from '../config-context'
 import { Viewmodel } from '../components/view-model'
-import { collections, globals } from '../documents/data'
 
 const stats = [
 	{ label: 'Published Pages', value: '24', sub: 'Live on the site' },
@@ -10,6 +10,18 @@ const stats = [
 ]
 
 export function OverviewComponent() {
+	const config = useAdminConfig()
+
+	const collections = (config.collections ?? []).map((collection) => ({
+		label: collection.labels?.plural ?? collection.slug,
+		slug: collection.slug
+	}))
+
+	const globals = (config.globals ?? []).map((global) => ({
+		label: global.label ?? global.slug,
+		slug: global.slug
+	}))
+
 	return (
 		<div
 			className={cn(

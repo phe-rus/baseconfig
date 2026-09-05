@@ -2,7 +2,6 @@ import { defineGlobal } from '@baseconfig/core'
 
 export const footer = defineGlobal({
 	slug: 'footer',
-	label: 'Footer',
 	fields: [
 		{
 			name: 'navItems',

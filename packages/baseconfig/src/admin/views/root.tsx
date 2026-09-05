@@ -1,13 +1,15 @@
-import { Fragment, type PropsWithChildren } from 'react'
+import { Fragment } from 'react'
+import type { AdminConfigProviderProps } from '../types'
+import { AdminConfigProvider } from './config-context'
 import { Headers } from './headers'
 
-type RouteRootProps = PropsWithChildren<{}>
-
-export function RouteRoot({ children }: RouteRootProps) {
+export function RouteRoot({ config, children }: AdminConfigProviderProps) {
 	return (
-		<Fragment>
-			<Headers />
-			{children}
-		</Fragment>
+		<AdminConfigProvider config={config}>
+			<Fragment>
+				<Headers />
+				{children}
+			</Fragment>
+		</AdminConfigProvider>
 	)
 }

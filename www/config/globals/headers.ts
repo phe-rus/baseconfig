@@ -2,7 +2,6 @@ import { defineGlobal } from '@baseconfig/core'
 
 export const headers = defineGlobal({
 	slug: 'headers',
-	label: 'Headers',
 	fields: [
 		{
 			name: 'logo',

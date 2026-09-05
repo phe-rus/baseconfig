@@ -6,6 +6,7 @@ import {
 	useParams
 } from '@tanstack/react-router'
 import { Suspense, use, useMemo } from 'react'
+import { useAdminConfig } from './config-context'
 import { adminRouteTree } from './route-tree'
 
 const isServer = typeof document === 'undefined'
@@ -21,12 +22,14 @@ function InnerRouter({ router, loadPromise }: InnerRouterProps) {
 }
 
 function RouterMount() {
+	const config = useAdminConfig()
 	const { _splat } = useParams({ strict: false }) as { _splat?: string }
 	const { router, loadPromise } = useMemo(() => {
 		const path = _splat ? `/admin/${_splat}` : '/admin/'
 		const router = createRouter({
 			routeTree: adminRouteTree,
 			basepath: '/admin',
+			context: { config },
 			history: isServer
 				? createMemoryHistory({ initialEntries: [path] })
 				: createBrowserHistory()

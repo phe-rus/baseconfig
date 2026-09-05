@@ -5,10 +5,6 @@ import { mediaBlock } from '../blocks/media'
 
 export const pages = defineCollection({
 	slug: 'pages',
-	labels: {
-		singular: 'Page',
-		plural: 'Pages'
-	},
 	admin: {
 		useAsTitle: 'title',
 		defaultColumns: ['title', 'slug', 'updatedAt']
@@ -58,22 +54,40 @@ export const pages = defineCollection({
 				{
 					label: 'SEO',
 					fields: [
-						{ name: 'metaTitle', type: 'text' },
-						{ name: 'metaDescription', type: 'text' },
-						{ name: 'metaImage', type: 'upload', relationTo: 'media' }
+						{
+							name: 'metaTitle',
+							type: 'text'
+						},
+						{
+							name: 'metaDescription',
+							type: 'text'
+						},
+						{
+							name: 'metaImage',
+							type: 'upload',
+							relationTo: 'media'
+						}
 					]
 				},
 				{
 					label: 'Settings',
 					fields: [
-						{ name: 'parent', type: 'relationship', relationTo: 'pages' },
+						{
+							name: 'parent',
+							type: 'relationship',
+							relationTo: 'pages'
+						},
 						{
 							name: 'tags',
 							type: 'select',
 							options: ['marketing', 'product', 'company'],
 							hasMany: true
 						},
-						{ name: 'author', type: 'relationship', relationTo: 'users' }
+						{
+							name: 'author',
+							type: 'relationship',
+							relationTo: 'users'
+						}
 					]
 				}
 			]

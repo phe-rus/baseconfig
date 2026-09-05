@@ -7,7 +7,7 @@ import { createColumnHelper } from '@tanstack/react-table'
 import { useMemo } from 'react'
 import type { DocumentStatus } from '../../../editor/status-badge'
 import { StatusBadge } from '../../../editor/status-badge'
-import { collections } from '../../documents/data'
+import { useAdminConfig } from '../../config-context'
 import { CollectionTable } from '../../../tables/collection-table'
 import { collectionTableFeatures } from '../../../tables/collection-table/features'
 
@@ -111,6 +111,7 @@ const columnHelper = createColumnHelper<
 
 export function CollectionsComponent() {
 	const { slug } = useLoaderData({ strict: false }) as { slug: string }
+	const config = useAdminConfig()
 	const childMatches = useChildMatches()
 
 	const columns = useMemo(
@@ -167,7 +168,8 @@ export function CollectionsComponent() {
 		return <Outlet />
 	}
 
-	const label = collections.find((item) => item.slug === slug)?.label ?? slug
+	const collection = config.collections?.find((item) => item.slug === slug)
+	const label = collection?.labels?.plural ?? slug
 
 	return (
 		<div className='container flex w-full flex-col gap-6 py-10 md:max-w-4xl!'>

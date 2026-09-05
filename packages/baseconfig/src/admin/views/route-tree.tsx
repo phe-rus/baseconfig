@@ -1,13 +1,13 @@
 import {
-	createRootRoute,
+	createRootRouteWithContext,
 	createRoute,
 	lazyRouteComponent,
 	notFound,
 	Outlet
 } from '@tanstack/react-router'
-import { collections, globals } from './documents/data'
+import type { AdminRouterContext } from '../types'
 
-const adminRootRoute = createRootRoute({
+const adminRootRoute = createRootRouteWithContext<AdminRouterContext>()({
 	component: () => <Outlet />
 })
 const dashboardRoute = createRoute({
@@ -21,8 +21,10 @@ const dashboardRoute = createRoute({
 const globalRoute = createRoute({
 	getParentRoute: () => adminRootRoute,
 	path: 'globals/$slug',
-	loader: ({ params }) => {
-		const global = globals.find((item) => item.slug === params.slug)
+	loader: ({ params, context }) => {
+		const global = context.config.globals?.find(
+			(item) => item.slug === params.slug
+		)
 		if (!global) {
 			throw notFound()
 		}
@@ -37,8 +39,10 @@ const globalRoute = createRoute({
 const collectionRoute = createRoute({
 	getParentRoute: () => adminRootRoute,
 	path: '$slug',
-	loader: ({ params }) => {
-		const collection = collections.find((item) => item.slug === params.slug)
+	loader: ({ params, context }) => {
+		const collection = context.config.collections?.find(
+			(item) => item.slug === params.slug
+		)
 
 		if (!collection) {
 			throw notFound()

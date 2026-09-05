@@ -5,11 +5,13 @@ import { EditorContent } from '../../editor/content'
 import { HeadersOne } from '../../editor/headers/headers-one'
 import { HeadersThree } from '../../editor/headers/headers-three'
 import { HeadersTwo } from '../../editor/headers/headers-two'
-import { globals } from '../documents/data'
+import { useAdminConfig } from '../config-context'
 
 export function GlobalsComponent() {
 	const { slug } = useLoaderData({ strict: false }) as { slug: string }
-	const label = globals.find((item) => item.slug === slug)?.label ?? slug
+	const config = useAdminConfig()
+	const label =
+		config.globals?.find((item) => item.slug === slug)?.label ?? slug
 
 	return (
 		<div className='flex flex-col pb-24'>

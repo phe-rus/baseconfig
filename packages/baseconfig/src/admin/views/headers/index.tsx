@@ -16,7 +16,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Link, useParams, useRouter } from '@tanstack/react-router'
 import { Fragment } from 'react'
-import { collections, globals } from '../documents/data'
+import { useAdminConfig } from '../config-context'
 
 type Crumb = {
 	label: string
@@ -24,6 +24,7 @@ type Crumb = {
 }
 
 const useBreadcrumb = (): Crumb[] => {
+	const config = useAdminConfig()
 	const { _splat } = useParams({ strict: false }) as { _splat?: string }
 	const segments = _splat ? _splat.split('/').filter(Boolean) : []
 	const root: Crumb = { label: 'Baseconfig' }
@@ -35,12 +36,12 @@ const useBreadcrumb = (): Crumb[] => {
 	const [slug, id] = segments
 
 	if (slug === 'globals') {
-		const global = globals.find((item) => item.slug === segments[1])
+		const global = config.globals?.find((item) => item.slug === segments[1])
 		return [root, { label: global?.label ?? segments[1], splat: _splat }]
 	}
 
-	const collection = collections.find((item) => item.slug === slug)
-	const label = collection?.label ?? slug
+	const collection = config.collections?.find((item) => item.slug === slug)
+	const label = collection?.labels?.plural ?? slug
 
 	if (id) {
 		return [root, { label, splat: slug }, { label: id, splat: _splat }]
