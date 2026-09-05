@@ -25,13 +25,17 @@ export function HeadersTwo({ status, createdAt, updatedAt }: HeadersTwoProps) {
 			<div className='flex items-center gap-3'>
 				<p className='text-sm!'>
 					Status:{' '}
-					<strong className='text-foreground text-xs!'>{STATUS_LABEL[status]}</strong>
+					<strong className='text-foreground text-xs!'>
+						{STATUS_LABEL[status]}
+					</strong>
 				</p>
 				<p className='text-muted-foreground text-xs!'>
-					Created: <strong className='text-foreground text-xs!'>{createdAt}</strong>
+					Created:{' '}
+					<strong className='text-foreground text-xs!'>{createdAt}</strong>
 				</p>
 				<p className='text-muted-foreground text-xs!'>
-					Updated: <strong className='text-foreground text-xs!'>{updatedAt}</strong>
+					Updated:{' '}
+					<strong className='text-foreground text-xs!'>{updatedAt}</strong>
 				</p>
 			</div>
 			<div className='flex items-center gap-2'>

@@ -131,10 +131,10 @@ export function CollectionTable<TRow extends RowData>({
 	const orderedHideableColumns =
 		columnOrder.length > 0
 			? columnOrder
-				.map((id) => hideableColumns.find((column) => column.id === id))
-				.filter((column): column is (typeof hideableColumns)[number] =>
-					Boolean(column)
-				)
+					.map((id) => hideableColumns.find((column) => column.id === id))
+					.filter((column): column is (typeof hideableColumns)[number] =>
+						Boolean(column)
+					)
 			: hideableColumns
 	const columnsPanelColumns = orderedHideableColumns.map((column) => ({
 		id: column.id,

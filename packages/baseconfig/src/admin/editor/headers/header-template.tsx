@@ -14,7 +14,9 @@ export function HeaderTemplate({
 }: HeaderTemplateProps) {
 	return (
 		<header className={cn('flex border-border/15 border-b', headerClassName)}>
-			<section className={cn('w-full px-5 md:px-10', className)}>{children}</section>
+			<section className={cn('w-full px-5 md:px-10', className)}>
+				{children}
+			</section>
 		</header>
 	)
 }
