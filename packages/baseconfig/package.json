@@ -13,7 +13,9 @@
 		"@hugeicons/core-free-icons": "4.3.0",
 		"@hugeicons/react": "1.1.10",
 		"@tanstack/react-router": "1.170.32",
-		"react": "19.2.8"
+		"@tanstack/react-table": "9.2.4",
+		"react": "19.2.8",
+		"zod": "4.5.4"
 	},
 	"devDependencies": {
 		"@types/react": "19.2.18",
@@ -21,6 +23,10 @@
 		"typescript": "7.0.2"
 	},
 	"exports": {
+		".": {
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs"
+		},
 		"./admin": {
 			"types": "./dist/admin/index.d.mts",
 			"import": "./dist/admin/index.mjs"

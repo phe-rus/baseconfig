@@ -1,6 +1,5 @@
 import { Badge } from '@baseconfig/ui/components/badge'
 import { Button } from '@baseconfig/ui/components/button'
-import { cn } from '@baseconfig/ui/lib/utils'
 import { PlusIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
@@ -9,9 +8,20 @@ import {
 	useChildMatches,
 	useLoaderData
 } from '@tanstack/react-router'
+import { createColumnHelper } from '@tanstack/react-table'
+import { useMemo } from 'react'
 import { collections } from '../../documents/data'
+import { CollectionTable } from '../../../tables/collection-table'
+import { collectionTableFeatures } from '../../../tables/columns'
 
-const documents = [
+type Document = {
+	id: string
+	title: string
+	status: 'published' | 'draft'
+	updatedAt: string
+}
+
+const documents: Document[] = [
 	{
 		id: 'a1b2c3d4',
 		title: 'Homepage',
@@ -44,9 +54,45 @@ const documents = [
 	}
 ]
 
+const columnHelper = createColumnHelper<
+	typeof collectionTableFeatures,
+	Document
+>()
+
 export function CollectionsComponent() {
 	const { slug } = useLoaderData({ strict: false }) as { slug: string }
 	const childMatches = useChildMatches()
+
+	const columns = useMemo(
+		() => [
+			columnHelper.accessor('title', {
+				header: 'Title',
+				cell: (info) => (
+					<Link
+						to={'/$slug/$id' as any}
+						params={{ slug, id: info.row.original.id } as any}
+						className='text-foreground hover:underline'
+					>
+						{info.getValue()}
+					</Link>
+				)
+			}),
+			columnHelper.accessor('status', {
+				header: 'Status',
+				cell: (info) => (
+					<Badge
+						variant={info.getValue() === 'published' ? 'secondary' : 'outline'}
+					>
+						{info.getValue()}
+					</Badge>
+				)
+			}),
+			columnHelper.accessor('updatedAt', {
+				header: 'Updated'
+			})
+		],
+		[slug]
+	)
 
 	if (childMatches.length > 0) {
 		return <Outlet />
@@ -64,30 +110,8 @@ export function CollectionsComponent() {
 				</Button>
 			</div>
 
-			<div className='flex flex-col overflow-hidden rounded-md border border-border/35'>
-				{documents.map((doc, index) => (
-					<Link
-						key={doc.id}
-						to={'/$slug/$id' as any}
-						params={{ slug, id: doc.id } as any}
-						className={cn(
-							'flex items-center justify-between px-4 py-3 hover:bg-input/35',
-							index !== documents.length - 1 && 'border-border/35 border-b'
-						)}
-					>
-						<span className='text-foreground text-sm'>{doc.title}</span>
-						<div className='flex items-center gap-3'>
-							<Badge
-								variant={doc.status === 'published' ? 'secondary' : 'outline'}
-							>
-								{doc.status}
-							</Badge>
-							<span className='text-muted-foreground text-xs'>
-								{doc.updatedAt}
-							</span>
-						</div>
-					</Link>
-				))}
+			<div className='overflow-hidden rounded-md border border-border/35'>
+				<CollectionTable columns={columns} data={documents} />
 			</div>
 		</div>
 	)

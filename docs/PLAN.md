@@ -91,13 +91,16 @@ Plan originally written 2026-08-31 under the project's old name (Demoness). Stag
 
 **Goal**: field builder functions exist and produce Payload-shaped config objects.
 
-- [ ] Implement all 22 builders from the field taxonomy (`text`, `textarea`, `richtext`, `number`, `checkbox`, `email`, `date`, `select`, `radio`, `relationship`, `upload`, `group`, `array`, `blocks`, `tabs`, `json`, `code`, `point`, `row`, `collapsible`, `ui`, `join`) in `src/field-types/`, each producing a Payload-shaped plain object (`{ name, type: '...', ...options }`). Note from the prior build, worth re-confirming rather than assuming: Payload's real `row`/`collapsible` configs have **no `name` property**, so those two (and partially `ui`) don't fit a shared base the way the other ~19 do.
-- [ ] Every builder attaches a real Zod schema (source of truth for validation, composed recursively for `group`/`array`/`blocks`/`tabs`) and an `admin.component` string (the admin-component mapping — a name like `"TextInput"`/`"BlocksRepeater"`, not wired to an actual component until Stage 5).
-- [ ] `AnyField` — the loosely-typed container used wherever a builder holds a heterogeneous list of other fields (array/group/blocks/tabs contents) — will likely need `any`-parameterized `hooks`/`schema` rather than `unknown`, since concrete builders' hook/schema types are contravariant in the field's own value type. Document any such use in-file as a narrow, deliberate exception, not a general shortcut.
-- [ ] Unit tests covering a representative sample against real shapes: `text`, `select` (single + hasMany), `relationship` (single + hasMany), `group`, `array`, `blocks` (discriminated by `blockType`), `tabs` (named + unnamed), `row`/`collapsible`'s no-`name` shape.
-- [ ] `turbo typecheck lint --filter='@baseconfig/fields'` clean.
+**Built ahead of schedule, 2026-09-05, per direct instruction (not the normal per-stage go-ahead flow)** — see `CLAUDE.md`'s `@baseconfig/fields and buildConfig` section for the full real structure and `docs/DISCUSSION.md` for the research trail. Real location: `packages/baseconfig/src/fields/` (not `src/field-types/` as originally planned here — corrected to match where the package actually lives, `@baseconfig/fields` merged into core back on 2026-09-04).
 
-**Checkpoint**: wait for go-ahead before Stage 3.
+- [x] All 23 builders implemented (22 from the original taxonomy + `slug`, confirmed as a genuine distinct Payload field type via real source — see `CLAUDE.md`'s Field taxonomy correction). Confirmed via real Payload source (`packages/payload/src/fields/config/types.ts`, not docs prose) that Payload itself has no builder-function layer to port — these are BaseConfig's own sugar over Payload-shaped plain objects.
+- [x] Every builder attaches a real Zod schema (`field.schema`), composed recursively for `group`/`array`/`blocks`/`tabs` — verified both by `tsc` and a real runtime smoke test (constructed sample fields, ran `.schema.safeParse()` against sample data, all passed).
+- [x] `AnyField`'s loose typing handled as anticipated (`src/fields/types/index.ts`).
+- [ ] **`admin.component` string — dropped from scope, corrected against this file's own already-decided design**: this bullet as originally written contradicts `CLAUDE.md`'s admin/consumer-split entry (`docs/DISCUSSION.md`'s 2026-08-31 entry) — the admin app resolves a field's rendered component by looking up `field.type`, not by reading a mandatory `component` string every field carries. `ui.ts` is still the one legitimate exception (its whole purpose is being a named custom-component slot). Not something to add back without re-deciding that principle first.
+- [ ] Unit tests — not yet written (a runtime smoke test substituted for verification this pass, not a real test suite).
+- [ ] `turbo typecheck lint --filter='@baseconfig/fields'` — N/A as written, since there's no separate `@baseconfig/fields` package (merged into `@baseconfig/core` back on 2026-09-04); `packages/baseconfig`'s own typecheck is clean.
+
+**Checkpoint**: not formally closed — real code exists and is verified working, but unit tests and a final explicit sign-off haven't happened. Treat as substantially done, not 100% closed, before Stage 3.
 
 ---
 
@@ -119,12 +122,12 @@ Plan originally written 2026-08-31 under the project's old name (Demoness). Stag
 
 **Goal**: `defineCollection`/`defineGlobal`, access control, hooks, context, the typed CRUD accessor, `buildConfig`.
 
-- [ ] `defineCollection`/`defineGlobal` accepting `fields`, `access`, `hooks`, `versions` per `CLAUDE.md`.
+- [x] **`buildConfig`/`defineCollection`/`defineGlobal` scaffolded 2026-09-05** (`packages/baseconfig/src/config.ts`), ahead of schedule per direct instruction — **deliberately blank/pass-through**, not the real thing: types match the documented shape (`collections`, `globals`, `plugins`, `db`, `editor`, `secret`, `serverURL`, `admin`, `routes`, `hooks.afterError`, `upload`, `defaultDepth`/`maxDepth`, `indexSortableFields` — `cors`/`csrf`/`jobs` not yet in the type, add when this stage does the real work), but the functions just return their input unchanged — no sanitize, no validation, no access-control wiring. `editor`'s real value is blocked on the unresolved Lexical-vs-hard-rule conflict flagged in `CLAUDE.md`.
+- [ ] `defineCollection`/`defineGlobal` accepting `fields`, `access`, `hooks`, `versions` per `CLAUDE.md` — the real, non-pass-through version.
 - [ ] Hook execution pipeline in the confirmed firing order (collection/global/field/root tiers).
 - [ ] Request-scoped `context` object, shared across every hook in one operation.
 - [ ] Access-control evaluation (`boolean` or `Where` constraint), enforced before every operation unless `overrideAccess`.
 - [ ] Typed per-collection CRUD accessor: `core.collections.<slug>.find/findByID/create/update/delete/count`, `core.globals.<slug>.find/update`.
-- [ ] `buildConfig({...})` assembling `collections`, `globals`, `plugins`, `db`, `editor`, `secret`, `serverURL`, `cors`, `csrf`, `admin`, `routes`, `hooks`, `upload`, `jobs` per `CLAUDE.md`.
 - [ ] Generated REST route handlers (the actual `GET/POST/PATCH/DELETE` logic) built on top of the typed accessor — wired into `www/src/routes/api/$collection/$.ts` and `api/globals/$global.ts` in Stage 5, not this stage.
 
 **Checkpoint**: wait for go-ahead before Stage 5.

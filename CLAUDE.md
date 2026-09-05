@@ -29,6 +29,8 @@ Free-tier-first. The goal: roughly 100 pages, 1000 blog posts, lots of images, a
 - **Auth**: BaseConfig runs **its own local `betterAuth()` instance** (same pattern `seer` already runs), configured with a generic OAuth provider pointed at `infra` as the external identity provider. Login/logout/session/refresh are better-auth's own native routes on *this* instance, mounted at BaseConfig's own `/api/auth/*` — not something `@baseconfig/core` generates. BaseConfig must be added to infra's `cachedTrustedClients` (manual — infra disables dynamic client registration). `Users` is a read-mostly profile extension of BaseConfig's own local better-auth user table (populated via OAuth sign-in from infra), not a mirror of infra's own table. See `docs/DISCUSSION.md`'s 2026-08-31 correction entry for the full trail — an earlier pass at this wrongly dropped auth routes entirely.
 - **Rich text / visual editing**: no third-party rich-text libraries (TipTap, Slate, Lexical, etc.) — same hard rule as `seer`'s editor. Build on primitive DOM/contentEditable.
 
+**⚠️ Unresolved conflict, flagged 2026-09-05, needs your decision — read before touching richtext/Lexical work**: mid-autonomous-session, a request came in to build a new `@baseconfig/lexical` package "fully follow payloadcms" for rich text, plus reserve its shape in `buildConfig()`. That directly contradicts the hard rule stated immediately above, which this same file already marks as closed/decided. Since the request arrived while unable to confirm intent (a nap, "put this in automode"), and building/deleting a whole package + dependency is exactly the kind of hard-to-reverse action this file's own operating principles say to pause on rather than guess through — **`@baseconfig/lexical` was deliberately NOT built.** Everything else requested in that same message *was* built (see `## @baseconfig/fields` below and `docs/DISCUSSION.md`'s dated entry). `buildConfig()`'s `editor` option exists as a structural slot (currently typed `unknown` — deliberately unspecified) so the shape isn't blocked either way. **Next session: confirm which is actually intended** — reverse the no-third-party-rich-text rule (and build Lexical for real), or keep the rule and design `editor` against BaseConfig's own primitive-contentEditable approach instead. Don't silently pick one — ask.
+
 ## Package structure
 
 Folder name → npm scope, all under `packages/`:
@@ -168,11 +170,37 @@ The platform is edge-cached by default, everywhere. Rendered output is cached at
 
 ## Field taxonomy (confirmed against Payload's own docs, full list adopted)
 
-- **Data fields** (produce a DB column): `array`, `blocks`, `checkbox` (boolean), `code`, `date`, `email`, `group` (named), `json`, `number`, `point`, `radio`, `relationship` (single or hasMany), `richtext`, `select` (single or hasMany), `tabs` (named), `text`, `textarea`, `upload`.
+- **Data fields** (produce a DB column): `array`, `blocks`, `checkbox` (boolean), `code`, `date`, `email`, `group` (named), `json`, `number`, `point`, `radio`, `relationship` (single or hasMany), `richtext`, `select` (single or hasMany), `slug`, `tabs` (named), `text`, `textarea`, `upload`.
 - **Presentational fields** (admin-layout only, no DB column): `collapsible`, `row`, `tabs` (unnamed), `group` (unnamed), `ui`.
 - **Virtual**: `join` (computed two-way relationship, no own column).
-- Not real field types, corrected: "tags" is `select({ hasMany: true })`; "slug" is a `text` field plus a custom admin component/hook. Deferred, not needed yet: `currency`, `point`/geo beyond the base type (Products-specific).
+- **Corrected 2026-09-05, real bug in this file caught by reading Payload's actual source, not its docs prose**: `slug` **is** a genuine, distinct Payload field type (`SlugField` in `packages/payload/src/fields/config/types.ts` — fetched and read directly, not assumed) — `{ type: 'slug', useAsSlug: 'title', slugify?: (value) => string }`, not merely "a `text` field plus a custom admin component/hook" as this file wrongly claimed before. That older claim was itself never source-verified — it was inferred from docs prose and then repeated as fact. Lesson: a "corrected" note is only as good as what corrected it; re-verify against real source when in doubt, even for something this file already asserts. `"tags"` still isn't a distinct type — confirmed still just `select({ hasMany: true })`. Deferred, not needed yet: `currency`, `point`/geo beyond the base type (Products-specific).
+- **Also confirmed directly from source, not previously verified this precisely**: Payload itself has **no builder-function layer at all** — `packages/payload/src/fields/config/` contains only `types.ts` (the field shape definitions) and `sanitize.ts` (normalizes whatever plain object literal the user wrote); there is no `text()`/`select()`/etc. to "port." `@baseconfig/fields`' builder functions are BaseConfig's own ergonomic sugar layer over Payload-shaped plain objects — matching the taxonomy/shape, not literal code being ported, since there's no equivalent code in Payload to port from.
 - **Design insight**: a page's Hero/Layout/SEO/Settings admin structure is one named `tabs` field on the collection config, not four separate top-level concerns.
+
+## `@baseconfig/fields` and `buildConfig` — built 2026-09-05, real structure, not yet fully connected
+
+Built autonomously, per direct instruction, before Stage 2 was otherwise scheduled to start — the real current shape, all 23 field-type files verified both by `tsc --noEmit` and a runtime smoke test (built real field instances, called `.schema.safeParse()` against real sample data for text/slug/select/group/richtext/blocks/array/tabs, all passed):
+
+```
+packages/baseconfig/src/
+├── index.ts                # export * from './config'; export * from './fields/index'
+├── config.ts                # buildConfig()/defineCollection()/defineGlobal() — deliberately blank/pass-through, no sanitize/validate logic yet (that's real Stage 4 work)
+└── fields/
+    ├── index.ts              # barrel, export * from every field file
+    ├── types/index.ts         # BaseField/BaseFieldOptions/AnyField (deliberately loose per-field, matching the already-anticipated "AnyField needs any-parameterized schema" note from the pre-rename build) + hook/access/admin shared types
+    ├── text.ts, textarea.ts, email.ts, slug.ts, number.ts, checkbox.ts, date.ts, select.ts, radio.ts, relationship.ts, richtext.ts, upload.ts, code.ts, json.ts, point.ts   # data fields, each a leaf builder
+    ├── group.ts, array.ts, tabs.ts     # recursive: each composes a Zod object/array schema from child fields' own `.schema`
+    ├── blocks.ts               # recursive + discriminated: exports `block()` (defines one block's slug+fields) and `blocks()` (the field itself), schema is a real `z.union(...)` across block variants keyed by `blockType`
+    ├── row.ts, collapsible.ts   # presentational, no own `name` — fields merge into the parent's own shape, matching Payload's real `RowField`/`CollapsibleField` (verified: no `name` property on either)
+    ├── ui.ts                    # presentational, `admin.component` required (the one field type where a component-name string is legitimately part of the shape, not a leak — see the admin/consumer-split entry in `docs/DISCUSSION.md`)
+    └── join.ts                  # virtual, no own column
+```
+
+- **Every builder attaches a real Zod schema** (`field.schema`), composed recursively for `group`/`array`/`blocks`/`tabs` from their children's own schemas — this is the actual "Zod as source of truth" principle from this file's Stack section, now real code, not just a stated intent.
+- **`buildConfig()`/`defineCollection()`/`defineGlobal()`** (`src/config.ts`) are deliberately pass-through/identity functions right now — the types match the already-documented top-level config shape (`collections`, `globals`, `plugins`, `db`, `editor`, `secret`, `serverURL`, `admin`, `routes`, `hooks.afterError`, `upload`, `defaultDepth`/`maxDepth`, `indexSortableFields`), but there's no real sanitization, access-control wiring, or CRUD engine behind them yet — that's genuinely Stage 4, not done early by accident.
+- **`editor` option**: typed `unknown`, deliberately unspecified — see the Lexical conflict flagged directly above in the Rich text bullet.
+- `packages/baseconfig/tsdown.config.ts`'s entry glob needed a second pattern (`['src/*.ts', 'src/*/*.ts']`) to actually build these two new root-level files — the original `src/*/*.ts`-only glob (from the 1A dev-loop work) only ever matched one-level-deep files, silently never building `src/index.ts`/`src/config.ts` at all until caught by checking the real build output, not assumed.
+- `@tanstack/react-table` (`9.2.4`) and `zod` (`4.5.4`) added to `packages/baseconfig/package.json`, both exact-pinned against the live npm registry at the time.
 
 ## `@baseconfig/d1` schema generation (confirmed against Payload's actual Drizzle source)
 
