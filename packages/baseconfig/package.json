@@ -9,11 +9,16 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@baseconfig/d1": "workspace:*",
+		"@baseconfig/r2": "workspace:*",
 		"@baseconfig/ui": "workspace:*",
+		"@better-auth/drizzle-adapter": "1.7.2",
 		"@hugeicons/core-free-icons": "4.3.0",
 		"@hugeicons/react": "1.1.10",
 		"@tanstack/react-router": "1.170.32",
 		"@tanstack/react-table": "9.2.4",
+		"better-auth": "1.7.2",
+		"drizzle-orm": "0.45.2",
 		"react": "19.2.8",
 		"zod": "4.5.4"
 	},
@@ -31,6 +36,10 @@
 		"./admin": {
 			"types": "./dist/admin/index.d.mts",
 			"import": "./dist/admin/index.mjs"
+		},
+		"./auth": {
+			"types": "./dist/auth/index.d.mts",
+			"import": "./dist/auth/index.mjs"
 		}
 	}
 }

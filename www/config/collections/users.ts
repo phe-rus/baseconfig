@@ -2,6 +2,7 @@ import { defineCollection } from '@baseconfig/core'
 
 export const users = defineCollection({
 	slug: 'users',
+	auth: true,
 	admin: {
 		useAsTitle: 'name',
 		defaultColumns: ['name', 'email', 'role']

@@ -1,3 +1,4 @@
+import type { StorageAdapter } from '@baseconfig/r2'
 import type { Field } from './fields'
 
 export type CollectionConfig = {
@@ -8,6 +9,7 @@ export type CollectionConfig = {
 	access?: Record<string, unknown>
 	hooks?: Record<string, unknown>
 	versions?: { drafts?: boolean }
+	auth?: boolean
 }
 
 export type GlobalConfig = {
@@ -67,7 +69,7 @@ export type BuildConfigOptions = {
 	admin?: Record<string, unknown>
 	routes?: { admin?: string; api?: string }
 	hooks?: { afterError?: Array<() => void> }
-	upload?: { adapter?: 'local' | 'r2' | 'images' }
+	upload?: { adapter?: StorageAdapter }
 	defaultDepth?: number
 	maxDepth?: number
 	defaultMaxTextLength?: number

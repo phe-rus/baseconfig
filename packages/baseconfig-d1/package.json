@@ -1,0 +1,25 @@
+{
+	"name": "@baseconfig/d1",
+	"version": "0.0.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"build": "tsdown",
+		"dev": "tsdown --watch",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"drizzle-orm": "0.45.2"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "5.20260905.1",
+		"tsdown": "0.23.0",
+		"typescript": "7.0.2"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs"
+		}
+	}
+}
